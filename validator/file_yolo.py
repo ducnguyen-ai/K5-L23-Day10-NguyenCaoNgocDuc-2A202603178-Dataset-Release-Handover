@@ -29,7 +29,7 @@ def sha256(path: Path) -> str:
 
 def read_classes(root: Path) -> set[int]:
     ids = set()
-    for line in (root / "classes.txt").read_text(encoding="utf-8-sig").splitlines():
+    for line in delivery_path(root, "classes.txt").read_text(encoding="utf-8-sig").splitlines():
         if line.strip():
             index, name = line.split(maxsplit=1)
             class_id = int(index)
@@ -43,7 +43,7 @@ def read_classes(root: Path) -> set[int]:
 
 def read_dimensions(root: Path) -> dict[str, tuple[int, int]]:
     # Read image dimensions, not segment annotations. Missing images still have dimensions.
-    data = json.loads((root / "panoptic.json").read_text(encoding="utf-8-sig"))
+    data = json.loads(delivery_path(root, "panoptic.json").read_text(encoding="utf-8-sig"))
     sizes = {}
     for image in data["images"]:
         width, height = int(image["width"]), int(image["height"])
@@ -67,7 +67,7 @@ def is_duplicate(first: tuple, second: tuple, size: tuple[int, int]) -> bool:
 
 def validate(delivery: Path) -> list[dict[str, str]]:
     root = delivery.resolve(strict=True)
-    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8-sig"))
+    manifest = json.loads(delivery_path(root, "manifest.json").read_text(encoding="utf-8-sig"))
     classes = read_classes(root)
     dimensions = read_dimensions(root)
     findings: set[tuple[str, str]] = set()

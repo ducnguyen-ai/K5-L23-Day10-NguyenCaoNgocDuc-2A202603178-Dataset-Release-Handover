@@ -26,7 +26,7 @@ Theo RULES.md, validator chỉ đọc delivery được truyền vào, dùng th�
 Chạy PowerShell từ thư mục repo, Python3.13.7 hiện có đáp ứng yêu cầu. Luồng bắt buộc dùng thư viện chuẩn Python.
 
 1. Đọc submission/TEAM.md, bổ sung mã nhóm, họ tên và MSHV còn thiếu, xác nhận phân công. Mỗi người cấu hình tên/email Git của chính mình.
-2. Tuyenda2011 và TranDHoa viết validator/validate.py, Đức chuẩn bị công cụ xem ứng viên. Các phần bàn giao và truy vết chuẩn bị song song.
+2. Theo file nhiệm vụ mới, Đức làm Người1, kiểm file/YOLO và điểm chạy validator. Phần này đã có code, xem validator/README.md để bàn giao và ghép với Người2/3. Các vai còn lại đối chiếu lại phân công của nhóm.
 3. Khi validator có thể chạy, dùng các lệnh sau.
 
 ```powershell
