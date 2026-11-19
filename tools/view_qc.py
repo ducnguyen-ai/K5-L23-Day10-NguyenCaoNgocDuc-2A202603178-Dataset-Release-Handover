@@ -1,198 +1,222 @@
-﻿import argparse
+"""YOLO + panoptic candidate viewer for Day 10 (Person 2/3 handoff).
+
+Usage from the repository root (requires Pillow):
+    python -X utf8 tools/view_qc.py runs/r3007/delivery \
+        --candidates runs/r3007/candidates_p3.json
+
+This program only VISUALIZES candidates. It does not confirm/reject errors or
+write review_log.csv; the team must inspect images and record decisions itself.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
 import tkinter as tk
 from pathlib import Path
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 from PIL import Image, ImageDraw, ImageTk
 
 
-def load_classes(path):
+def load_classes(path: Path) -> dict[int, str]:
     classes = {}
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8-sig").splitlines():
             parts = line.strip().split(maxsplit=1)
             if len(parts) == 2:
                 classes[int(parts[0])] = parts[1]
     return classes
 
 
-def draw_mask_outlines(image, mask_path):
-    if not mask_path.exists():
-        return image
-
-    mask = Image.open(mask_path).convert("RGB")
-    if mask.size != image.size:
-        raise ValueError(
-            f"Mask size {mask.size} does not match image size {image.size}"
-        )
-
-    width, height = mask.size
-    src = mask.load()
-    overlay = Image.new("RGBA", mask.size, (0, 0, 0, 0))
-    dst = overlay.load()
-    background = (0, 0, 0)
-    outline = (0, 255, 255, 230)
-
-    # Draw boundaries between distinct segment IDs.
-    for y in range(height):
-        for x in range(width):
-            current = src[x, y]
-            if current == background:
-                continue
-
-            edge = False
-            if x + 1 < width and src[x + 1, y] != current:
-                edge = True
-            if y + 1 < height and src[x, y + 1] != current:
-                edge = True
-
-            if edge:
-                dst[x, y] = outline
-
-    return Image.alpha_composite(image.convert("RGBA"), overlay)
+def load_candidates(path: Path | None) -> list[dict]:
+    if path is None:
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    status = payload.get("status")
+    if status != "generated_for_human_review":
+        raise ValueError(f"Not a generated review queue: status={status!r}")
+    records = payload.get("candidates")
+    if not isinstance(records, list):
+        raise ValueError("candidates must be a list")
+    for index, record in enumerate(records):
+        if not isinstance(record, dict) or not (record.get("image") or record.get("target")):
+            raise ValueError(f"Invalid candidate at index {index}")
+    return records
 
 
-def draw_yolo_boxes(image, label_path, classes):
-    if not label_path.exists():
-        return image
+def image_stem(record: dict) -> str:
+    name = str(record.get("image") or record.get("target") or "").strip()
+    return Path(name).stem
 
-    image = image.convert("RGBA")
-    draw = ImageDraw.Draw(image)
-    width, height = image.size
 
-    for line in label_path.read_text(encoding="utf-8").splitlines():
+def image_file(images_dir: Path, stem: str) -> Path | None:
+    # Only a plain stem is accepted. Candidates cannot point outside images/.
+    if not stem or Path(stem).name != stem or stem in (".", ".."):
+        return None
+    for suffix in (".jpg", ".jpeg", ".png", ".JPG", ".JPEG"):
+        path = images_dir / (stem + suffix)
+        if path.is_file():
+            return path
+    return None
+
+
+def yolo_boxes(label_path: Path, width: int, height: int, classes: dict[int, str]):
+    if not label_path.is_file():
+        return []
+    boxes = []
+    for line_idx, line in enumerate(label_path.read_text(encoding="utf-8-sig").splitlines()):
         parts = line.split()
-        if len(parts) < 5:
+        if len(parts) != 5:
             continue
-
         try:
-            class_id = int(parts[0])
-            cx, cy, bw, bh = map(float, parts[1:5])
+            cls = int(parts[0])
+            cx, cy, bw, bh = map(float, parts[1:])
+            values = ((cx - bw / 2) * width, (cy - bh / 2) * height,
+                      (cx + bw / 2) * width, (cy + bh / 2) * height)
+            if not all(float("-inf") < x < float("inf") for x in values):
+                continue
         except ValueError:
             continue
+        if values[2] <= values[0] or values[3] <= values[1]:
+            continue
+        boxes.append({"index": line_idx, "name": classes.get(cls, f"class_{cls}"),
+                      "rect": values})
+    return boxes
 
-        x1 = (cx - bw / 2) * width
-        y1 = (cy - bh / 2) * height
-        x2 = (cx + bw / 2) * width
-        y2 = (cy + bh / 2) * height
 
-        draw.rectangle((x1, y1, x2, y2), outline=(255, 50, 50, 255), width=2)
-        name = classes.get(class_id, f"class_{class_id}")
-        draw.text((x1 + 2, max(0, y1 - 14)), name, fill=(255, 50, 50, 255))
+def segment_rgb(sid: int) -> tuple[int, int, int]:
+    return sid & 255, (sid >> 8) & 255, (sid >> 16) & 255
 
-    return image
+
+def mask_overlay(image: Image.Image, path: Path, selected_sid: int | None):
+    """Render all segment edges cyan, and selected segment with yellow fill."""
+    if not path.is_file():
+        return image, None
+    mask = Image.open(path).convert("RGB")
+    if mask.size != image.size:
+        raise ValueError(f"Mask {mask.size} differs from image {image.size}: {path.name}")
+    width, height = mask.size
+    data = mask.load()
+    layer = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+    target = segment_rgb(selected_sid) if selected_sid is not None else None
+    layer_pixels = layer.load()
+    x0, y0, x1, y1 = width, height, -1, -1
+    for y in range(height):
+        for x in range(width):
+            current = data[x, y]
+            chosen = target is not None and current == target
+            if chosen:
+                x0, y0 = min(x0, x), min(y0, y)
+                x1, y1 = max(x1, x), max(y1, y)
+            if current == (0, 0, 0):
+                continue
+            edge = ((x == 0 or data[x - 1, y] != current)
+                    or (x + 1 == width or data[x + 1, y] != current)
+                    or (y == 0 or data[x, y - 1] != current)
+                    or (y + 1 == height or data[x, y + 1] != current))
+            if edge:
+                layer_pixels[x, y] = (255, 210, 0, 255) if chosen else (0, 255, 255, 225)
+            elif chosen:
+                layer_pixels[x, y] = (255, 210, 0, 70)
+    region = (x0, y0, x1 + 1, y1 + 1) if x1 >= x0 else None
+    return Image.alpha_composite(image, layer), region
+
+
+def candidate_roi(candidate: dict | None, segment_rect, selected_box, width: int, height: int):
+    location = candidate.get("location") if candidate else None
+    if isinstance(location, (list, tuple)) and len(location) == 4:
+        try:
+            x0, y0, x1, y1 = [float(v) for v in location]
+            if x1 > x0 and y1 > y0:
+                return (max(0, x0), max(0, y0), min(width, x1), min(height, y1))
+        except (ValueError, TypeError):
+            pass
+    if segment_rect:
+        return segment_rect
+    return selected_box["rect"] if selected_box else None
+
+
+def crop_with_margin(image: Image.Image, region, margin_fraction=0.30):
+    if not region:
+        return image.copy()
+    x0, y0, x1, y1 = region
+    pad = max(16, int(max(x1 - x0, y1 - y0) * margin_fraction))
+    bounds = (max(0, int(x0) - pad), max(0, int(y0) - pad),
+              min(image.width, int(x1) + pad), min(image.height, int(y1) + pad))
+    return image.crop(bounds)
 
 
 class QCViewer:
-    def __init__(self, delivery):
-        self.delivery = Path(delivery)
+    ZOOM_LEVELS = (0.5, 1.0, 1.5, 2.0, 3.0, 4.0)
+
+    def __init__(self, delivery: Path, candidates_path: Path | None = None):
+        self.delivery = Path(delivery).resolve(strict=True)
         self.images = self.delivery / "images"
         self.labels = self.delivery / "labels"
         self.masks = self.delivery / "masks"
         self.classes = load_classes(self.delivery / "classes.txt")
-
         if not self.images.is_dir():
-            raise FileNotFoundError(f"Images directory not found: {self.images}")
+            raise FileNotFoundError(f"Missing images directory: {self.images}")
+        self.candidates = load_candidates(candidates_path)
+        self.current_index = -1
+        self.zoom_index = 1
+        self.render_base = None
+        self.roi = None
+        self.photo = None
+        self.crop_windows = []
 
         self.root = tk.Tk()
-        self.root.title("Dataset QC Viewer - YOLO + Panoptic")
-        self.root.geometry("1150x820")
+        self.root.title("Day10 QC Viewer — YOLO + Panoptic + Candidates")
+        self.root.geometry("1450x890")
 
-        top = tk.Frame(self.root)
-        top.pack(fill="x", padx=10, pady=8)
-
-        tk.Label(top, text="Image name / ID:").pack(side="left")
-        self.entry = tk.Entry(top, width=25)
+        toolbar = ttk.Frame(self.root, padding=8)
+        toolbar.pack(fill="x")
+        ttk.Label(toolbar, text="Image stem:").pack(side="left")
+        self.entry = ttk.Entry(toolbar, width=23)
         self.entry.pack(side="left", padx=6)
         self.entry.insert(0, "000000000139")
 
         tk.Button(top, text="Open image", command=self.open_image).pack(side="left")
-        tk.Button(top, text="Zoom +", command=lambda: self.change_zoom(1.25)).pack(side="left", padx=(8, 0))
-        tk.Button(top, text="Zoom -", command=lambda: self.change_zoom(0.8)).pack(side="left")
-        tk.Button(top, text="Reset zoom", command=self.reset_zoom).pack(side="left", padx=4)
         self.status = tk.Label(self.root, text="Enter an image ID, then click Open image.")
         self.status.pack(fill="x", padx=10)
 
-        viewer = tk.Frame(self.root)
-        viewer.pack(fill="both", expand=True, padx=10, pady=8)
-        self.canvas = tk.Canvas(viewer, bg="#222222", width=1100, height=740)
-        horizontal = tk.Scrollbar(viewer, orient="horizontal", command=self.canvas.xview)
-        vertical = tk.Scrollbar(viewer, orient="vertical", command=self.canvas.yview)
-        self.canvas.configure(
-            xscrollcommand=horizontal.set,
-            yscrollcommand=vertical.set,
-        )
-        self.canvas.grid(row=0, column=0, sticky="nsew")
-        vertical.grid(row=0, column=1, sticky="ns")
-        horizontal.grid(row=1, column=0, sticky="ew")
-        viewer.grid_rowconfigure(0, weight=1)
-        viewer.grid_columnconfigure(0, weight=1)
-
+        self.canvas = tk.Canvas(self.root, bg="#222222", width=1100, height=740)
+        self.canvas.pack(fill="both", expand=True, padx=10, pady=8)
         self.photo = None
-        self.source_image = None
-        self.label_exists = False
-        self.mask_exists = False
-        self.fit_scale = 1.0
-        self.zoom = 1.0
 
         self.root.bind("<Return>", lambda event: self.open_image())
-        self.root.bind("<Control-plus>", lambda event: self.change_zoom(1.25))
-        self.root.bind("<Control-equal>", lambda event: self.change_zoom(1.25))
-        self.root.bind("<Control-minus>", lambda event: self.change_zoom(0.8))
-        self.root.bind("<KeyPress-plus>", lambda event: self.change_zoom(1.25))
-        self.root.bind("<KeyPress-minus>", lambda event: self.change_zoom(0.8))
-        self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)
         self.open_image()
-
-    def change_zoom(self, factor):
-        if self.source_image is None:
-            return
-        self.zoom = min(8.0, max(0.25, self.zoom * factor))
-        self.render_image()
-
-    def reset_zoom(self):
-        if self.source_image is None:
-            return
-        self.zoom = 1.0
-        self.render_image()
-
-    def on_mouse_wheel(self, event):
-        self.change_zoom(1.25 if event.delta > 0 else 0.8)
-        return "break"
-
-    def render_image(self):
-        width = max(1, round(self.source_image.width * self.fit_scale * self.zoom))
-        height = max(1, round(self.source_image.height * self.fit_scale * self.zoom))
-        image = self.source_image.resize(
-            (width, height), Image.Resampling.LANCZOS
-        )
-        self.photo = ImageTk.PhotoImage(image)
-        self.canvas.delete("all")
-        self.canvas.create_image(0, 0, anchor="nw", image=self.photo)
-        self.canvas.configure(scrollregion=(0, 0, width, height))
-        self.status.config(
-            text=f"{self.current_stem} | Original: "
-                 f"{self.source_image.width}x{self.source_image.height} "
-                 f"| YOLO: {'OK' if self.label_exists else 'no label'} "
-                 f"| Mask: {'OK' if self.mask_exists else 'no mask'} "
-                 f"| Zoom: {self.zoom:.2f}x | Red = YOLO, Cyan = segments"
-        )
 
     def open_image(self):
         stem = Path(self.entry.get().strip()).stem
         if not stem:
             return
+        self.current_index = index
+        self.listbox.selection_clear(0, "end")
+        self.listbox.selection_set(index)
+        self.listbox.see(index)
+        record = self.candidates[index]
+        stem = image_stem(record)
+        self.entry.delete(0, "end")
+        self.entry.insert(0, stem)
+        possible = record.get("possible_types") or []
+        hint = "\nReview must decide: " + " OR ".join(possible) if possible else ""
+        self._details(f"Candidate {index + 1}/{len(self.candidates)}\n\n"
+                      + json.dumps(record, ensure_ascii=False, indent=2) + hint)
+        self.render(stem, record)
 
-        image_path = next(
-            (self.images / f"{stem}{ext}" for ext in (".jpg", ".jpeg", ".png")
-             if (self.images / f"{stem}{ext}").exists()),
-            None,
-        )
+    def open_manual(self):
+        self.current_index = -1
+        self.listbox.selection_clear(0, "end")
+        self._details("Manual image mode. Select a candidate to show its evidence.")
+        self.render(Path(self.entry.get().strip()).stem, None)
 
-        if image_path is None:
-            messagebox.showerror("Image not found", f"Cannot find image: {stem}")
+    def render(self, stem: str, candidate: dict | None):
+        path = image_file(self.images, stem)
+        if path is None:
+            messagebox.showerror("Image missing", f"Image not found inside delivery/images: {stem}")
             return
-
         try:
             image = Image.open(image_path).convert("RGBA")
             mask_path = self.masks / f"{stem}.png"
@@ -201,24 +225,36 @@ class QCViewer:
             image = draw_mask_outlines(image, mask_path)
             image = draw_yolo_boxes(image, label_path, self.classes)
 
-            self.source_image = image
-            self.current_stem = stem
-            self.label_exists = label_path.exists()
-            self.mask_exists = mask_path.exists()
-            self.fit_scale = min(1080 / image.width, 700 / image.height, 1.0)
-            self.zoom = 1.0
-            self.render_image()
+            original_size = image.size
+            image.thumbnail((1080, 700), Image.Resampling.LANCZOS)
+
+            self.photo = ImageTk.PhotoImage(image)
+            self.canvas.delete("all")
+            self.canvas.create_image(10, 10, anchor="nw", image=self.photo)
+            self.canvas.configure(
+                scrollregion=(0, 0, image.width + 20, image.height + 20)
+            )
+
+            self.status.config(
+                text=f"{stem} | Original: {original_size[0]}x{original_size[1]} "
+                     f"| YOLO: {'OK' if label_path.exists() else 'no label'} "
+                     f"| Mask: {'OK' if mask_path.exists() else 'no mask'} "
+                     f"| Red = YOLO boxes | Cyan = segment boundaries"
+            )
         except Exception as exc:
             messagebox.showerror("Viewer error", str(exc))
 
 
 def main():
-    parser = argparse.ArgumentParser(description="View YOLO boxes and panoptic masks.")
-    parser.add_argument("delivery", nargs="?", default="runs/r3007/delivery")
+    parser = argparse.ArgumentParser(description="Inspect YOLO boxes, panoptic masks, and review candidates")
+    parser.add_argument("delivery", nargs="?", type=Path, default=Path("runs/r3007/delivery"))
+    parser.add_argument("--candidates", type=Path, help="Generated candidates.json with review status")
     args = parser.parse_args()
-
-    app = QCViewer(args.delivery)
-    app.root.mainloop()
+    try:
+        viewer = QCViewer(args.delivery, args.candidates)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+    viewer.root.mainloop()
 
 
 if __name__ == "__main__":
