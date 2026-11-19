@@ -107,15 +107,76 @@ class QCViewer:
         self.entry.insert(0, "000000000139")
 
         tk.Button(top, text="Open image", command=self.open_image).pack(side="left")
+        tk.Button(top, text="Zoom +", command=lambda: self.change_zoom(1.25)).pack(side="left", padx=(8, 0))
+        tk.Button(top, text="Zoom -", command=lambda: self.change_zoom(0.8)).pack(side="left")
+        tk.Button(top, text="Reset zoom", command=self.reset_zoom).pack(side="left", padx=4)
         self.status = tk.Label(self.root, text="Enter an image ID, then click Open image.")
         self.status.pack(fill="x", padx=10)
 
-        self.canvas = tk.Canvas(self.root, bg="#222222", width=1100, height=740)
-        self.canvas.pack(fill="both", expand=True, padx=10, pady=8)
+        viewer = tk.Frame(self.root)
+        viewer.pack(fill="both", expand=True, padx=10, pady=8)
+        self.canvas = tk.Canvas(viewer, bg="#222222", width=1100, height=740)
+        horizontal = tk.Scrollbar(viewer, orient="horizontal", command=self.canvas.xview)
+        vertical = tk.Scrollbar(viewer, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(
+            xscrollcommand=horizontal.set,
+            yscrollcommand=vertical.set,
+        )
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        vertical.grid(row=0, column=1, sticky="ns")
+        horizontal.grid(row=1, column=0, sticky="ew")
+        viewer.grid_rowconfigure(0, weight=1)
+        viewer.grid_columnconfigure(0, weight=1)
+
         self.photo = None
+        self.source_image = None
+        self.label_exists = False
+        self.mask_exists = False
+        self.fit_scale = 1.0
+        self.zoom = 1.0
 
         self.root.bind("<Return>", lambda event: self.open_image())
+        self.root.bind("<Control-plus>", lambda event: self.change_zoom(1.25))
+        self.root.bind("<Control-equal>", lambda event: self.change_zoom(1.25))
+        self.root.bind("<Control-minus>", lambda event: self.change_zoom(0.8))
+        self.root.bind("<KeyPress-plus>", lambda event: self.change_zoom(1.25))
+        self.root.bind("<KeyPress-minus>", lambda event: self.change_zoom(0.8))
+        self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)
         self.open_image()
+
+    def change_zoom(self, factor):
+        if self.source_image is None:
+            return
+        self.zoom = min(8.0, max(0.25, self.zoom * factor))
+        self.render_image()
+
+    def reset_zoom(self):
+        if self.source_image is None:
+            return
+        self.zoom = 1.0
+        self.render_image()
+
+    def on_mouse_wheel(self, event):
+        self.change_zoom(1.25 if event.delta > 0 else 0.8)
+        return "break"
+
+    def render_image(self):
+        width = max(1, round(self.source_image.width * self.fit_scale * self.zoom))
+        height = max(1, round(self.source_image.height * self.fit_scale * self.zoom))
+        image = self.source_image.resize(
+            (width, height), Image.Resampling.LANCZOS
+        )
+        self.photo = ImageTk.PhotoImage(image)
+        self.canvas.delete("all")
+        self.canvas.create_image(0, 0, anchor="nw", image=self.photo)
+        self.canvas.configure(scrollregion=(0, 0, width, height))
+        self.status.config(
+            text=f"{self.current_stem} | Original: "
+                 f"{self.source_image.width}x{self.source_image.height} "
+                 f"| YOLO: {'OK' if self.label_exists else 'no label'} "
+                 f"| Mask: {'OK' if self.mask_exists else 'no mask'} "
+                 f"| Zoom: {self.zoom:.2f}x | Red = YOLO, Cyan = segments"
+        )
 
     def open_image(self):
         stem = Path(self.entry.get().strip()).stem
@@ -140,22 +201,13 @@ class QCViewer:
             image = draw_mask_outlines(image, mask_path)
             image = draw_yolo_boxes(image, label_path, self.classes)
 
-            original_size = image.size
-            image.thumbnail((1080, 700), Image.Resampling.LANCZOS)
-
-            self.photo = ImageTk.PhotoImage(image)
-            self.canvas.delete("all")
-            self.canvas.create_image(10, 10, anchor="nw", image=self.photo)
-            self.canvas.configure(
-                scrollregion=(0, 0, image.width + 20, image.height + 20)
-            )
-
-            self.status.config(
-                text=f"{stem} | Original: {original_size[0]}x{original_size[1]} "
-                     f"| YOLO: {'OK' if label_path.exists() else 'no label'} "
-                     f"| Mask: {'OK' if mask_path.exists() else 'no mask'} "
-                     f"| Red = YOLO boxes | Cyan = segment boundaries"
-            )
+            self.source_image = image
+            self.current_stem = stem
+            self.label_exists = label_path.exists()
+            self.mask_exists = mask_path.exists()
+            self.fit_scale = min(1080 / image.width, 700 / image.height, 1.0)
+            self.zoom = 1.0
+            self.render_image()
         except Exception as exc:
             messagebox.showerror("Viewer error", str(exc))
 

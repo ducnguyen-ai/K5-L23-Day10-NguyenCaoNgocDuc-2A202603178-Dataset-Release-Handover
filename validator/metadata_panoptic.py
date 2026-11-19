@@ -48,7 +48,7 @@ def validate(delivery: Path) -> list[dict[str, str]]:
 
         if job_id in jobs:
             if item["guideline_version"] != jobs[job_id]:
-                findings.add(("guideline_mismatch", item["image"]))
+                findings.add(("guideline_mismatch", Path(item["image"]).stem))
 
     # 3. Read panoptic categories and annotations.
     panoptic = json.loads(

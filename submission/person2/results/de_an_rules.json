@@ -1,0 +1,20 @@
+{
+  "errors": [
+    {
+      "type": "guideline_mismatch",
+      "target": "img_0214"
+    },
+    {
+      "type": "scene_leak",
+      "target": "scene_743"
+    },
+    {
+      "type": "thing_overlap",
+      "target": "img_0213"
+    },
+    {
+      "type": "thing_overlap",
+      "target": "img_0250"
+    }
+  ]
+}
