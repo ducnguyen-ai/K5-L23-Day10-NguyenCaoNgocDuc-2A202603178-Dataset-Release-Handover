@@ -82,5 +82,22 @@
     "image": "000000020992",
     "observer": "Nguyễn Chí Tài",
     "observation_source": "Student reply after viewing original in Preview"
+  },
+  "person3_practice_handoff_check": {
+    "source_commit": "3a3c47e",
+    "source_directory": "submission/person_3",
+    "review_rows": 18,
+    "review_images": 17,
+    "confirmed": 10,
+    "rejected": 8,
+    "rule_findings": 11,
+    "merged_errors": 21,
+    "candidates_match_reproduced_practice": true,
+    "errors_equal_rules_plus_confirmed": true,
+    "review_types_match_candidate_possible_types": true,
+    "all_notes_at_least_20_characters": true,
+    "reviewer_names_missing_from_notes": 18,
+    "image_contents_rechecked_by_AI": false,
+    "F1_verified": false
   }
 }

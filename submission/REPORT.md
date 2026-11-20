@@ -7,7 +7,7 @@
 - Số ứng viên trên lô r3007: 18 ứng viên thuộc 17 ảnh.
 - Kết quả review r3007: 10 confirmed, 8 rejected.
 
-**Rà soát của Người 5, ngày 20/11/2026:** đã tái tạo r3007 và lô sạch bằng script chính thức theo START_HERE.md, rồi chạy validator hiện tại. Lô r3007 có 11 lỗi luật và 18 ứng viên/17 ảnh; lô sạch có 0 lỗi luật và 0 ứng viên. Tập lỗi luật r3007 khớp hợp các kết quả Người 1/2 đã lưu. Riêng 10 confirmed/8 rejected là số nhóm ghi trước; chưa có review_log.csv để kiểm chứng. Cần Người 3 bổ sung bản review có tên người xem trước khi chốt báo cáo.
+**Rà soát của Người 5, ngày 20/11/2026:** đã tái tạo r3007 và lô sạch bằng script chính thức theo START_HERE.md, rồi chạy validator hiện tại. Lô r3007 có 11 lỗi luật và 18 ứng viên/17 ảnh; lô sạch có 0 lỗi luật và 0 ứng viên. Tập lỗi luật r3007 khớp hợp các kết quả Người 1/2 đã lưu. Sau khi nhận commit 3a3c47e của Người 3, đã kiểm chứng submission/person_3/review_log.csv có 18 dòng trên 17 ảnh, gồm 10 confirmed và 8 rejected. Candidates khớp kết quả chạy lại r3007; errors.json có 21 mục, đúng bằng 11 lỗi luật cộng 10 dòng confirmed. Các ghi chú đều đủ 20 ký tự và loại lỗi cuối phù hợp các khả năng của ứng viên, nhưng cả 18 dòng chưa ghi tên người xem. Người 3 cần xác nhận người đã trực tiếp xem và bổ sung tên thật vào note; không tự gán tên thành viên bằng AI. Đây là kiểm tra tính nhất quán file, chưa xác nhận lại nội dung ảnh hoặc F1.
 
 ### Kiểm chứng phần Người 1
 
@@ -29,7 +29,7 @@ Sử dụng pixel mask, tỷ lệ độ phủ và bounding box để tạo ứng
 Các ngưỡng được kiểm tra bằng lô sạch và lô luyện tập, không sử dụng dữ liệu _private hoặc nhãn nguồn để quyết định kết luận của từng ảnh.
 
 ## 2. Vì sao báo hết ứng viên làm F1 giảm?
-Chạy lại validator hiện tại trên r3007 đã xác minh 18 ứng viên thuộc 17 ảnh. Kết quả review được nhóm ghi trước là 10 confirmed và 8 rejected; chưa có review_log.csv trong bản repo nhận được để kiểm chứng các kết luận và lý do loại ứng viên.
+Chạy lại validator hiện tại trên r3007 đã xác minh 18 ứng viên thuộc 17 ảnh. Bộ review Người 3 bàn giao tại submission/person_3/review_log.csv có 10 confirmed và 8 rejected; đã đối chiếu số dòng và tính nhất quán với candidates/errors. Còn cần bổ sung tên người thực sự xem vào các ghi chú và hoàn thành phần xem ảnh của từng thành viên; AI không xác nhận thay nội dung ảnh.
 
 Nếu đưa toàn bộ ứng viên vào errors.json mà không review, những trường hợp thực tế không phải lỗi cũng sẽ bị báo sai, làm tăng số false positive (FP). Precision = TP / (TP + FP); F1 là trung bình điều hòa của Precision và Recall. Khi false positive tăng trong khi TP và FN giữ nguyên, Precision giảm và F1 cũng giảm. Vì vậy chỉ đưa các lỗi gán nhãn đã được người trong nhóm xác nhận vào errors.json; lưu cả confirmed và rejected cùng quan sát cụ thể trong review_log.csv.
 
@@ -63,7 +63,7 @@ Phải lấy guideline từ **jobs.csv theo job_id**, vì guideline_version ở 
 Rà soát bản repo nhận được, chưa kết luận có bug trong script chính thức:
 
 - Báo cáo còn thiếu QC v1, quyết định phát hành và tác động R-021 ở mục 3; Người 4 cần điền từ errors.json và lineage thật.
-- Các số review và F1 đã ghi trước cần file gốc để đối chiếu như mục 1–2; không suy ra F1 từ số ứng viên hoặc số confirmed.
+- Đã nhận bộ luyện tập Người 3 tại submission/person_3/ từ commit 3a3c47e. Số review 10 confirmed/8 rejected và phép gộp 21 lỗi đã kiểm chứng bằng file thật; 18 ghi chú còn thiếu tên người xem. F1 0.8 vẫn chưa có file kết quả chấm để đối chiếu; không suy ra F1 từ số ứng viên hoặc số confirmed. Sau khi hoàn thiện thông tin review, tích hợp file vào runs/r3007/ rồi xuất đúng submission/r3007/ theo SUBMISSION.md.
 - candidates.json của đề ẩn ban đầu có trạng thái pending_cross_check_integration. Chạy lại validator hiện có trên đúng delivery đã sinh 13 bản ghi ứng viên thuộc 12 ảnh; đã cập nhật hàng đợi chính thức, lưu bản trước đó và kết quả kiểm luật trong submission/person5/. Hai bản ghi instance_merge ở img_0213 phải được xem cùng ảnh và chốt một kết luận cho cặp ảnh/loại lỗi. Bốn ứng viên bất đồng lớp có possible_types gồm class_swap và category_swap; cần người xem xác định nguồn nhãn sai.
 - Chưa có review_log.csv và errors.json cuối cùng cho đề ẩn. Người 3 cần phân công người xem và gộp kết quả thật với 9 lỗi luật được validator hiện tại tìm thấy. Bản worksheet trong submission/person5/ không phải log đã review.
 - README.md và TEAM.md còn mã nhóm chưa điền; một số thông tin thành viên chưa đủ. Bản tải mã nguồn ban đầu không có .git. Đã nối lại lịch sử origin/main và làm phần Người 5 trên nhánh person5-nguyen-chi-tai, dùng tên Nguyễn Chí Tài và email chitain26@gmail.com do học viên cung cấp; kiểm tra lịch sử commit của các thành viên còn lại trên repo nhóm.
