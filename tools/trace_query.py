@@ -2,7 +2,7 @@
 
 Run from the repository root:
     python tools/trace_query.py runs/r3007/delivery --out runs/r3007/trace.json \
-        --evidence submission/verification/r3007_trace_current.json
+        --evidence runs/r3007/trace_evidence.json
 
 This selects a reinspection scope. It does not confirm annotation errors.
 """

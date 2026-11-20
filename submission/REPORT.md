@@ -1,6 +1,6 @@
-# Báo cáo — Luyện tập3007
+# Báo cáo Nhóm 18 — Day 10
 
-Phạm vi hiện tại do học viên chốt ngày 20/11/2026 là lô luyện tập 3007. Mã nhóm đang chờ xác nhận.
+Nhóm 18 thực hiện kiểm tra và bàn giao lô luyện tập seed 3007. Thông tin thành viên và phân công được ghi tại TEAM.md.
 
 ## 1. Số liệu luyện tập
 - Seed luyện tập chính: r3007.
@@ -11,7 +11,7 @@ Phạm vi hiện tại do học viên chốt ngày 20/11/2026 là lô luyện t�
 
 ### Kiểm chứng phần Người 1
 
-Năm kiểm tra file/YOLO trên r3007 tìm6 mục lỗi, lô đối chứng 50 ảnh tìm0 mục lỗi. Kết quả gốc của phần Người 1 nằm trong verification/rules/person1_r3007.json và verification/rules/person1_clean.json. Phần tích hợp có 11 lỗi luật. Kiểm chứng nằm trong verification/, kết luận review nằm trong r3007/review_log.csv.
+Năm kiểm tra file/YOLO trên r3007 tìm 6 mục lỗi, lô đối chứng 50 ảnh tìm 0 mục lỗi. Phần tích hợp có 11 lỗi luật. Gộp các lỗi luật với 10 kết luận confirmed tạo 21 mục trong r3007/errors.json. Kết luận review được lưu tại r3007/review_log.csv. Sau tích hợp, 23 test tự tạo đạt và bộ kiểm bàn giao H1–H17 đạt 17 PASS, 0 FAIL.
 
 ### Phương pháp đối chiếu YOLO và Panoptic
 
@@ -55,4 +55,4 @@ Kết quả trong `submission/r3007/trace.json` gồm 2 ảnh ở tầng A, 4 �
 
 Đã tích hợp tools/trace_query.py, tests/test_trace_query.py và bản sửa tools/view_qc.py từ nhánh Nguyễn Chí Tài. Giải quyết xung đột bằng bộ r3007 trên main đã đạt kiểm tra bàn giao. Truy vết chạy lại trên delivery Windows hiện tại khớp trace.json đã nộp, hash ảnh bảo mật khớp bằng chứng học viên.
 
-Kết quả chuẩn nằm trong r3007/. Các bản bàn giao trùng được gom thành bằng chứng cần thiết trong verification/. Mục chưa đủ xác nhận là tên người xem trong18 dòng review và mã nhóm.
+Kết quả chuẩn nằm trong r3007/. Phần submission giữ các file theo cấu trúc nộp của đề cho lô luyện tập. Mục cần bổ sung là tên người xem thực tế trong 18 dòng review.

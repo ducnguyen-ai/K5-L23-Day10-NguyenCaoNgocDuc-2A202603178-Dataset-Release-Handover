@@ -36,8 +36,8 @@ SHA-256 được tính lại từ bytes. Box vượt biên dùng dung sai chuẩ
 
 Xem bằng tools/view_qc.py với đường dẫn candidates. Ghi người xem, verdict và quan sát vào review_log.csv. Chỉ sau khi nhóm chốt mới gộp bằng scripts/merge_review.py. Kết quả chuẩn của lô nằm tại [submission/r3007](../submission/r3007/).
 
-Người 4 quản lý v2/lineage. Người 5 cung cấp tools/trace_query.py và bằng chứng bảo mật. [Kiểm chứng](../submission/verification/README.md) chứa kết quả luật của các seed và log chạy lại.
+Người 4 quản lý v2/lineage. Người 5 cung cấp tools/trace_query.py và bằng chứng bảo mật. Kết quả và các số liệu kiểm tra được ghi trong [báo cáo](../submission/REPORT.md).
 
 ## Kiểm thử
 
-Chạy các test tự tạo theo [START_HERE.md](../START_HERE.md). tests/test_pipeline.py là bộ kiểm gốc của đề, có phần dùng đáp án riêng nên không chạy phần đó trong luồng làm bài của nhóm.
+Chạy unittest discover lần lượt với test_file_yolo.py, test_metadata_panoptic.py, test_cross_check.py và test_trace_query.py trong tests/. tests/test_pipeline.py là bộ kiểm gốc của đề, có phần dùng đáp án riêng nên không chạy phần đó trong luồng làm bài của nhóm.
