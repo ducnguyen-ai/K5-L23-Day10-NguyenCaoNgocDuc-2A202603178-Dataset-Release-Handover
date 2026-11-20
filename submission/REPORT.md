@@ -2,7 +2,7 @@
 
 ## 1. Số liệu luyện tập
 - Seed luyện tập chính: r3007.
-- F1 theo seed (rule / cross_check / overall): [CHỜ KẾT QUẢ CHẤM].
+- F1 tự đo trên r3007 (lỗi luật / lỗi gán nhãn / tổng): 1,0 / 0,6 / 0,8. Kết quả làm tròn từ `scripts/score_findings.py`.
 - Số ứng viên trên lô sạch (--no-faults): 0.
 - Số ứng viên trên lô r3007: 18 ứng viên thuộc 17 ảnh.
 - Kết quả review r3007: 10 confirmed, 8 rejected.
@@ -30,7 +30,9 @@ Các ngưỡng được kiểm tra bằng lô sạch và lô luyện tập, khô
 Trên lô r3007, công cụ cross-check sinh ra 18 ứng viên nghi vấn. Sau khi xem ảnh và đối chiếu bounding box YOLO với panoptic mask, nhóm đưa ra 10 kết luận confirmed và 8 kết luận rejected. Các ứng viên bị rejected chủ yếu liên quan đến hiện tượng bounding box chồng lấn tự nhiên, vật thể đứng sát nhau, segment có phạm vi lớn hoặc hình dạng đối tượng khó phân biệt. Nếu đưa toàn bộ 18 ứng viên vào errors.json mà không review, những trường hợp thực tế không phải lỗi cũng sẽ bị báo sai, làm tăng số false positive (FP). Precision được tính theo công thức: Precision = TP / (TP + FP) F1 là trung bình điều hòa của Precision và Recall. Vì vậy, khi số false positive tăng, Precision có thể giảm, kéo theo F1 giảm ngay cả khi Recall không thay đổi. Nhóm chỉ đưa các kết luận confirmed vào errors.json; các ứng viên rejected được giữ lại trong review_log.csv để làm bằng chứng quá trình kiểm tra. F1 thực tế sau khi gộp: 0.8
 
 ## 3. Quyết định và lineage
-<<QC v1 a/b, kết luận, vì sao R-021 phải xem lại hoặc train lại.>>
+- **QC v1:** 19/250 = 7,6%. Có 21 mục lỗi trong `errors.json`. Bộ kiểm đếm mỗi ảnh hoặc cảnh một lần, nên có 19 mục tiêu lỗi.
+- **Kết luận v1:** `HOLD` vì tỷ lệ lỗi vượt 2%. `R-021` đã train trên lô `lab250_95697c6d4612` và cần xem lại hoặc train lại.
+- **Bàn giao v2:** `lab250_95697c6d4612_v2` có 240 ảnh, 1.635 nhãn và 10 ảnh chuyển sang hàng đợi gán lại. Bộ kiểm xác nhận v1 nguyên vẹn và v2 đạt H1–H17 trên lô r3007 tái lập bằng script chính thức.
 
 ## 4. Hash chứng minh gì, không chứng minh gì?
 
@@ -39,7 +41,10 @@ SHA-256 được tính từ toàn bộ bytes của file và đối chiếu với
 Hash khớp xác nhận tính nhất quán giữa file và giá trị tham chiếu, còn chất lượng nhãn cần được kiểm tra bằng luật và xem ảnh. Một file nhãn có thể gán sai lớp, bỏ sót vật hoặc vẽ lệch box nhưng vẫn có hash khớp manifest. Trong bài, hash giúp kiểm tính toàn vẹn file và bảo toàn phiên bản bàn giao.
 
 ## 5. Truy vết
-<<Tiêu chí tầng a/b, vì sao lấy guideline theo job.>>
+Nguyễn Chí Tài phụ trách truy vết và bảo mật. Với r3007, ticket nêu `scene_197` và `scene_309`. Lọc ảnh có box YOLO lớp `bottle` (mã 39) và job dùng guideline v1.2. Ảnh trong các cảnh ticket thuộc tầng A, ảnh ở các cảnh khác thuộc tầng B. Lấy guideline theo `job_id` trong `jobs.csv` vì trường phiên bản ở từng ảnh có thể bị ghi sai.
+
+Kết quả trong `submission/r3007/trace.json` gồm 2 ảnh ở tầng A, 4 ảnh ở tầng B và 5 mã người gán hoặc kiểm trong `notify`. Cả ba mục có F1 tự đo làm tròn là 1,0. Ảnh bảo mật `000000020992.jpg` khớp SHA-256 với ảnh Người 5 đã trực tiếp xem.
 
 ## 6. Bug hoặc điểm chưa rõ trong lab (nếu có)
-<<>>
+- Bản tái lập của Người 5 có mã `lab250_68efac8c866e`. Trên máy bàn giao Windows, hai file JSON dùng để tính mã lô có dấu xuống dòng CRLF và cho mã `lab250_95697c6d4612`. Thay CRLF bằng LF trong bộ nhớ cho đúng mã của Người 5. `trace.json` và bằng chứng ảnh bảo mật đã được đối chiếu trên bản bàn giao Windows.
+- Log review do Người 3 chuyển có 18 dòng, gồm 10 xác nhận và 8 bác bỏ. Nhóm cần bổ sung tên thực tế vào ghi chú từng lượt xem để đáp ứng yêu cầu ghi người xem.
