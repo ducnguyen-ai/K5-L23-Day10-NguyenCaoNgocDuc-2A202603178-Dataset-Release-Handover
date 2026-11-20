@@ -2,7 +2,9 @@
 
 MHV: **2A202603223**. Email commit: **chitain26@gmail.com**. Ngày làm: **20/11/2026**.
 
-Phân công xác nhận review r3007: [review_assignments.json](review_assignments.json) và TEAM.md chia 17 ảnh theo tỷ lệ 4–4–3–3–3. Phần đề xuất của Nguyễn Chí Tài gồm 000000016010, 000000023272, 000000023781. Bộ kết quả chung có đủ 18 dòng; trạng thái từng người chờ xác nhận việc thực hiện, không tự gán tên vào các review có sẵn.
+Phân công xác nhận review r3007: [review_assignments.json](review_assignments.json) và TEAM.md chia 17 ảnh theo tỷ lệ 4–4–3–3–3. Phần đề xuất của Nguyễn Chí Tài gồm 000000016010, 000000023272, 000000023781. Bộ kết quả chung có đủ 18 dòng; trạng thái từng người ghi theo nguồn xác nhận, không tự gán tên vào các review có sẵn.
+
+Cập nhật: Nguyễn Chí Tài xác nhận đã trực tiếp review qua lời nhắn của học viên; đã lưu nguồn xác nhận trong review_assignments.json, không coi đây là kiểm chứng độc lập của AI. Hàng đợi riêng để mở lại ba ảnh cùng box/mask là [r3007_candidates_tai.json](r3007_candidates_tai.json). Bản cập nhật này không thêm hoặc sửa quan sát ảnh, verdict hay người viết của log nguồn.
 
 ## Phạm vi và file
 

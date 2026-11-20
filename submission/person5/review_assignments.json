@@ -194,7 +194,7 @@
       "image_count": 3,
       "candidate_count": 3,
       "assignment_status": "proposed_for_confirmation",
-      "individual_review_status": "awaiting_member_confirmation",
+      "individual_review_status": "student_confirmation_recorded",
       "images": [
         {
           "image": "000000016010",
@@ -223,7 +223,15 @@
             "category_swap"
           ]
         }
-      ]
+      ],
+      "confirmation": {
+        "date": "2026-11-20",
+        "source": "Lời xác nhận mới của học viên trong cuộc trao đổi",
+        "statement": "Nguyễn Chí Tài xác nhận đã trực tiếp review.",
+        "verification": "Ghi nhận lời xác nhận của học viên; AI không kiểm chứng độc lập việc xem ảnh.",
+        "per_image_observations_recorded_separately": false,
+        "source_review_log_unchanged": true
+      }
     }
   ]
 }

@@ -25,4 +25,6 @@ Tiến độ chung: đã có kết quả cho 18 ứng viên trên 17 ảnh, gồ
 - Người 4 — 3 ảnh: 000000007511, 000000018380, 000000019742.
 - Người 5 — Nguyễn Chí Tài — 3 ảnh: 000000016010, 000000023272, 000000023781.
 
-Trạng thái cá nhân: chờ xác nhận việc thực hiện theo phân công. Sau khi tự xem, thành viên xác nhận mã ảnh, kết luận và quan sát cụ thể; Người 3 tổng hợp tên người xem vào note. Không thay tác giả của các kết luận có sẵn bằng tên người được phân công. Chi tiết máy đọc được nằm tại submission/person5/review_assignments.json. Bảng này chỉ áp dụng r3007; đề ẩn cần phân công riêng.
+Trạng thái cá nhân theo xác nhận được cập nhật bên dưới; các thành viên chưa xác nhận vẫn ở trạng thái chờ. Sau khi tự xem, thành viên xác nhận mã ảnh, kết luận và quan sát cụ thể; Người 3 tổng hợp tên người xem vào note. Không thay tác giả của các kết luận có sẵn bằng tên người được phân công. Chi tiết máy đọc được nằm tại submission/person5/review_assignments.json. Bảng này chỉ áp dụng r3007; đề ẩn cần phân công riêng.
+
+Cập nhật lời xác nhận của Người 5 ngày 20/11/2026: **Nguyễn Chí Tài xác nhận đã trực tiếp review.** Đây là lời xác nhận của học viên trong cuộc trao đổi; chưa có ghi chú quan sát riêng cho từng ảnh trong bản cập nhật này. Giữ nguyên tác giả và nội dung của review_log.csv nguồn; chưa thay trạng thái của các thành viên khác.
