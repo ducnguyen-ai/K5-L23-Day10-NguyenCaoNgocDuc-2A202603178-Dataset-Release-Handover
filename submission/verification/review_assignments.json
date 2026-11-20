@@ -1,0 +1,242 @@
+{
+  "run": "r3007",
+  "date": "2026-11-20",
+  "purpose": "Chia đều phạm vi xác nhận review; đây không phải bằng chứng từng người đã xem ảnh.",
+  "source_candidates": "submission/r3007/candidates.json",
+  "source_review": "submission/r3007/review_log.csv",
+  "group_progress": {
+    "review_results_available": 18,
+    "candidate_records": 18,
+    "images": 17,
+    "confirmed": 10,
+    "rejected": 8
+  },
+  "assignment_counts": [
+    4,
+    4,
+    3,
+    3,
+    3
+  ],
+  "recording_rule": "Chỉ thêm tên người review và đánh dấu hoàn thành sau khi thành viên thực sự xem ảnh và xác nhận; giữ nguyên log nguồn.",
+  "assignments": [
+    {
+      "role": "Người 1",
+      "name": "Nguyễn Cao Ngọc Đức",
+      "image_count": 4,
+      "candidate_count": 4,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000001818",
+          "candidate_types": [
+            "bbox_drift"
+          ],
+          "existing_review_types": [
+            "bbox_drift"
+          ]
+        },
+        {
+          "image": "000000006723",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000007108",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000007795",
+          "candidate_types": [
+            "missing_box"
+          ],
+          "existing_review_types": [
+            "missing_box"
+          ]
+        }
+      ],
+      "student_id": "2A202603178"
+    },
+    {
+      "role": "Người 2",
+      "name": "Vũ Thị Thu Huyền",
+      "image_count": 4,
+      "candidate_count": 4,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000006763",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000009483",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000013546",
+          "candidate_types": [
+            "missing_box"
+          ],
+          "existing_review_types": [
+            "missing_box"
+          ]
+        },
+        {
+          "image": "000000017182",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        }
+      ],
+      "student_id": "2A202603115"
+    },
+    {
+      "role": "Người 3",
+      "name": "Trần Đức Hòa",
+      "image_count": 3,
+      "candidate_count": 4,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000013291",
+          "candidate_types": [
+            "bbox_drift",
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "bbox_drift",
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000013659",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "category_swap"
+          ]
+        },
+        {
+          "image": "000000024243",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        }
+      ],
+      "student_id": "2A202603181"
+    },
+    {
+      "role": "Người 4",
+      "name": "Đặng Anh Tuyền",
+      "image_count": 3,
+      "candidate_count": 3,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000007511",
+          "candidate_types": [
+            "missing_box"
+          ],
+          "existing_review_types": [
+            "missing_box"
+          ]
+        },
+        {
+          "image": "000000018380",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000019742",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "category_swap"
+          ]
+        }
+      ],
+      "student_id": "2A202603039"
+    },
+    {
+      "role": "Người 5",
+      "name": "Nguyễn Chí Tài",
+      "image_count": 3,
+      "candidate_count": 3,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "student_confirmation_recorded",
+      "images": [
+        {
+          "image": "000000016010",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000023272",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000023781",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "category_swap"
+          ]
+        }
+      ],
+      "confirmation": {
+        "date": "2026-11-20",
+        "source": "Lời xác nhận mới của học viên trong cuộc trao đổi",
+        "statement": "Nguyễn Chí Tài xác nhận đã trực tiếp review.",
+        "verification": "Ghi nhận lời xác nhận của học viên; AI không kiểm chứng độc lập việc xem ảnh.",
+        "per_image_observations_recorded_separately": false,
+        "source_review_log_unchanged": true
+      },
+      "student_id": "2A202603223"
+    }
+  ]
+}

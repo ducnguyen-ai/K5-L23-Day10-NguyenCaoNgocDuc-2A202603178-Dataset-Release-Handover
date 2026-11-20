@@ -1,4 +1,6 @@
-# Báo cáo nhóm <<XX>>
+# Báo cáo — Luyện tập3007
+
+Phạm vi hiện tại do học viên chốt ngày 20/11/2026 là lô luyện tập 3007. Mã nhóm đang chờ xác nhận.
 
 ## 1. Số liệu luyện tập
 - Seed luyện tập chính: r3007.
@@ -9,7 +11,7 @@
 
 ### Kiểm chứng phần Người 1
 
-Năm kiểm tra file/YOLO chạy trên r3007 tìm6mục lỗi, lô sạch50ảnh tìm0mục lỗi. Bản đề18 đã sửa từ ZIP do học viên cung cấp tìm5mục lỗi thuộc phạm vi Người1. Nguồn số liệu là runs/r3007/rules.json, runs/clean/rules.json và runs/de_an_work/rules.json, được tổng hợp trong person1_status.json. Có8kiểm thử tự tạo đạt. Các số này chưa phải F1 và chưa bao gồm phần metadata/panoptic hay kết luận review ảnh.
+Năm kiểm tra file/YOLO trên r3007 tìm6 mục lỗi, lô đối chứng 50 ảnh tìm0 mục lỗi. Kết quả gốc của phần Người 1 nằm trong verification/rules/person1_r3007.json và verification/rules/person1_clean.json. Phần tích hợp có 11 lỗi luật. Kiểm chứng nằm trong verification/, kết luận review nằm trong r3007/review_log.csv.
 
 ### Phương pháp đối chiếu YOLO và Panoptic
 
@@ -48,3 +50,9 @@ Kết quả trong `submission/r3007/trace.json` gồm 2 ảnh ở tầng A, 4 �
 ## 6. Bug hoặc điểm chưa rõ trong lab (nếu có)
 - Bản tái lập của Người 5 có mã `lab250_68efac8c866e`. Trên máy bàn giao Windows, hai file JSON dùng để tính mã lô có dấu xuống dòng CRLF và cho mã `lab250_95697c6d4612`. Thay CRLF bằng LF trong bộ nhớ cho đúng mã của Người 5. `trace.json` và bằng chứng ảnh bảo mật đã được đối chiếu trên bản bàn giao Windows.
 - Log review do Người 3 chuyển có 18 dòng, gồm 10 xác nhận và 8 bác bỏ. Nhóm cần bổ sung tên thực tế vào ghi chú từng lượt xem để đáp ứng yêu cầu ghi người xem.
+
+## 7. Tích hợp và tình trạng cuối
+
+Đã tích hợp tools/trace_query.py, tests/test_trace_query.py và bản sửa tools/view_qc.py từ nhánh Nguyễn Chí Tài. Giải quyết xung đột bằng bộ r3007 trên main đã đạt kiểm tra bàn giao. Truy vết chạy lại trên delivery Windows hiện tại khớp trace.json đã nộp, hash ảnh bảo mật khớp bằng chứng học viên.
+
+Kết quả chuẩn nằm trong r3007/. Các bản bàn giao trùng được gom thành bằng chứng cần thiết trong verification/. Mục chưa đủ xác nhận là tên người xem trong18 dòng review và mã nhóm.

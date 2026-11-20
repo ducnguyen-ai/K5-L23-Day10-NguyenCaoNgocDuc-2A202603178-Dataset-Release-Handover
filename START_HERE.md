@@ -1,53 +1,14 @@
-# Day10 — Bắt đầu với seed 3007
+# Day10 — Chạy và kiểm tra lô 3007
 
-## Dữ liệu trên máy
+## Phạm vi và dữ liệu
 
-`data_source/` là kho ảnh COCO và annotation nguồn để script chính thức tạo bài. Kho này có 250 ảnh practice và 50 ảnh calib cùng nhãn detection và panoptic. `data_source/cache/` giữ các gói tải về để tái sử dụng.
+Nhóm tập trung lô luyện tập 3007 theo yêu cầu của học viên ngày 20/11/2026. Mã nhóm cần xác nhận trong TEAM.md.
 
-`runs/r3007/delivery/` là lô giao cho nhóm kiểm tra. Seed3007 quyết định việc cài lỗi và metadata giả lập, dùng cùng seed và nguồn sẽ tái tạo cùng lô. Mọi thành viên dùng seed3007 cho lô luyện tập chính. Số3007 không tự xác định mã nhóm của lớp.
+data_source/ chứa kho COCO nguồn để script chính thức tạo lô. runs/r3007/delivery/ là đầu vào của validator. runs/clean/delivery/ có50 ảnh đối chứng để đo cảnh báo tự nhiên. Validator chỉ đọc delivery được truyền vào, dùng thư viện chuẩn và chạy offline theo RULES.md.
 
-`runs/clean/delivery/` là lô đối chứng50ảnh khác, tạo bằng seed5 với --no-faults. Dùng để đo cảnh báo tự nhiên và chọn phương pháp ghép box/mask.
+## Tạo dữ liệu trên máy mới
 
-Theo RULES.md, validator chỉ đọc delivery được truyền vào, dùng thư viện chuẩn và chạy offline. Nguồn COCO và thư mục _private nằm ngoài phạm vi đọc của validator. Dùng script score_findings.py theo cách chính thức để tự đo tổng thể sau khi có kết quả. Review confirmed/rejected cần người trong nhóm xem ảnh.
-
-## Nắm định dạng trước khi viết code
-
-- images/ chứa ảnh JPG.
-- labels/ chứa YOLO, mỗi dòng class_id x_center y_center width height, tọa độ chuẩn hóa0–1.
-- masks/ và panoptic.json mô tả vùng pixel/segment, gồm các vật thể riêng lẻ và vùng nền. RGB của mask mã hóa segment_id.
-- Ghép tên lớp qua classes.txt và categories của panoptic, vì hai hệ dùng ID khác nhau.
-- manifest.json dùng để đối chiếu file và SHA256.
-- metadata.json liên kết ảnh với scene, split, job, guideline. jobs.csv ghi người gán/kiểm và guideline chuẩn theo job.
-- guideline/changelog.md và incoming/ticket.md dùng cho truy vết.
-- release.json định danh lô, runs/lineage.jsonl ghi lịch sử. Sự kiện R-021 là lượt train giả lập cho tình huống truy vết của đề.
-
-## Bắt đầu làm bài
-
-Chạy PowerShell từ thư mục repo, Python3.13.7 hiện có đáp ứng yêu cầu. Luồng bắt buộc dùng thư viện chuẩn Python.
-
-1. Đọc submission/TEAM.md, bổ sung mã nhóm, họ tên và MSHV còn thiếu, xác nhận phân công. Mỗi người cấu hình tên/email Git của chính mình.
-2. Theo file nhiệm vụ mới, Đức làm Người1, kiểm file/YOLO và điểm chạy validator. Phần này đã có code, xem validator/README.md để bàn giao và ghép với Người2/3. Các vai còn lại đối chiếu lại phân công của nhóm.
-3. Khi validator có thể chạy, dùng các lệnh sau.
-
-```powershell
-python -X utf8 validator/validate.py runs/r3007/delivery --out runs/r3007/rules.json --candidates runs/r3007/candidates.json
-python -X utf8 validator/validate.py runs/clean/delivery --out runs/clean/rules.json --candidates runs/clean/candidates.json
-```
-
-rules.json là lỗi luật. candidates.json chứa ca nghi sai cần xem ảnh. Chia ảnh cho cả năm người, ghi image,type,verdict,note vào runs/r3007/review_log.csv. Note nêu người xem và điều thấy được. Mọi kết luận phải dựa trên việc xem ảnh.
-
-Sau khi xem và chốt các ca:
-
-```powershell
-python -X utf8 scripts/merge_review.py --rules runs/r3007/rules.json --review runs/r3007/review_log.csv --out runs/r3007/errors.json
-python -X utf8 scripts/score_findings.py --run runs/r3007
-```
-
-Tiếp theo làm theo GUIDE.md Pha3–6 để quyết định, lineage, bàn giao v2, truy vết, bảo mật và đề ẩn. Tạo v2 riêng khi đến Pha4. Trên2% ảnh lỗi thì HOLD v1, tương đương6/250 đã vượt ngưỡng.
-
-## Tái lập trên máy thành viên khác
-
-Sau khi clone repo và có Python3.10+, chạy lần đầu:
+Chạy từ thư mục gốc repo, Python3.10+:
 
 ```powershell
 python -X utf8 scripts/download_public.py
@@ -55,10 +16,59 @@ python -X utf8 scripts/run_lab.py --seeds 3007
 python -X utf8 scripts/inject_release.py --seed 5 --no-faults --out runs/clean
 ```
 
-Các lệnh này dành cho máy chưa có lô. Khi đã review, giữ lô đang dùng. Seed thử thêm tạo bằng inject_release.py vào một thư mục mới. runs/ và data_source/ được bỏ qua bởi Git. Sản phẩm cuối xuất sang submission/ theo SUBMISSION.md.
+Các lệnh tạo lô dùng cho máy chưa có lô. Giữ nguyên delivery khi đã làm. Seed thử thêm dùng inject_release.py vào thư mục mới.
 
-## Kiến thức cần giải thích được
+## Khôi phục bộ bài đã nộp vào runs
 
-Phân biệt lỗi luật và lỗi gán nhãn. Giải thích vì sao hai nguồn nhãn có thể khác nhau tự nhiên, vì sao báo thừa làm giảm precision/F1, và vì sao hash đúng chỉ xác nhận tính toàn vẹn file. Dùng scene để kiểm rò split, job để kiểm guideline và người chịu trách nhiệm. Hiểu v1, v2, parent và tác động đến lượt train đã dùng dữ liệu.
+Sau khi tạo dữ liệu, chép errors.json, candidates.json, review_log.csv, trace.json, security.md và thư mục handover/ từ submission/r3007/ sang runs/r3007/. Chép submission/lineage.jsonl sang runs/lineage.jsonl. Không chép đè delivery/.
 
-RUBRIC.md hiện chấm100điểm, không có mục bonus riêng. Bài còn cần code, review ảnh thật, bàn giao, truy vết, báo cáo và đề ẩn để hoàn thành.
+```powershell
+Copy-Item submission/r3007/errors.json,submission/r3007/candidates.json,submission/r3007/review_log.csv,submission/r3007/trace.json,submission/r3007/security.md -Destination runs/r3007
+Copy-Item submission/r3007/handover -Destination runs/r3007 -Recurse
+Copy-Item submission/lineage.jsonl -Destination runs/lineage.jsonl
+python scripts/check_handover.py --run runs/r3007
+```
+
+## Chạy validator và xem ứng viên
+
+```powershell
+python -X utf8 validator/validate.py runs/r3007/delivery --out runs/r3007/rules.json --candidates runs/r3007/candidates.json
+python tools/view_qc.py runs/r3007/delivery --candidates runs/r3007/candidates.json
+```
+
+Viewer hiển thị box YOLO, viền segment, bằng chứng ứng viên, zoom và crop. Người xem xác nhận/bác bỏ bằng việc nhìn ảnh và ghi image,type,verdict,note vào review_log.csv. Note cần tên người xem và quan sát cụ thể. Các kết luận đã có được giữ tại submission/r3007/review_log.csv, tên người xem còn cần bổ sung từ xác nhận thực tế.
+
+## Gộp review và truy vết
+
+Chỉ chạy gộp khi log đã được nhóm chốt:
+
+```powershell
+python scripts/merge_review.py --rules runs/r3007/rules.json --review runs/r3007/review_log.csv --out runs/r3007/errors.json
+python tools/trace_query.py runs/r3007/delivery --out runs/r3007/trace.json --evidence submission/verification/r3007_trace_current.json
+```
+
+Người 4 cập nhật gói v2 khi kết quả QC thay đổi, chạy pack_release.py sau khi chốt và chạy check_handover.py. Bản hiện có240 ảnh, 1.635 nhãn và10 ảnh rework. QC v1 dùng19 mục tiêu riêng biệt/250 ảnh =7,6%. Giữ nguyên nhãn v1, chuyển ảnh lỗi detection sang rework và xử lý metadata theo GUIDE.
+
+## Kiểm thử và bài nộp
+
+Chạy các test tự tạo dưới đây. tests/test_pipeline.py là bộ kiểm gốc có nhánh dùng đáp án riêng, đọc RULES trước khi chọn bài test phù hợp.
+
+```powershell
+python -m unittest discover -s tests -p test_file_yolo.py -v
+python -m unittest discover -s tests -p test_metadata_panoptic.py -v
+python -m unittest discover -s tests -p test_cross_check.py -v
+python -m unittest discover -s tests -p test_trace_query.py -v
+```
+
+Khi bộ làm việc đã hoàn chỉnh, dùng export_submission.py để xuất lại và kiểm Git trước khi push. Giữ code và sản phẩm nộp, loại runs/, data_source/, ZIP và secret theo rules. Mỗi người có ít nhất 2 commit có nội dung và giải thích được phần mình làm.
+
+## Kiến thức và câu hỏi tự kiểm
+
+- Lỗi luật có thể kiểm bằng cấu trúc và file, lỗi gán nhãn cần đối chiếu nguồn và xem ảnh. Tại sao hai nguồn có thể lệch tự nhiên?
+- Báo thừa làm giảm precision và có thể giảm F1. Vì sao18 ứng viên không tự thành18lỗi?
+- SHA-256 xác nhận bytes so với hash đã ghi. File có hash khớp nhưng nhãn sai lớp sẽ được phát hiện ở bước nào?
+- V2 liên kết parent với v1. Vì sao sửa dataset không tự sửa lượt train đã dùng v1?
+- Truy vết dùng guideline theo job. Vì sao trường guideline của ảnh có thể là nguồn sai?
+- Review và kiểm hình thức có phạm vi khác nhau. Ai đã xem từng ảnh và quan sát được gì?
+
+RUBRIC gốc không có mục bonus riêng. Cần hiểu kết quả thật của nhóm để trình bày và vấn đáp.

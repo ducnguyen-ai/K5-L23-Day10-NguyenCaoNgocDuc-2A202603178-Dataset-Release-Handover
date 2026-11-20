@@ -1,14 +1,17 @@
-# Validator Day10 — bàn giao Người 1
+# Validator Day10 — lô luyện tập 3007
 
-## Phần đã có
+## Module và giao diện
 
-Người 1 là Nguyễn Cao Ngọc Đức. `file_yolo.py` cung cấp `validate(delivery: Path) -> list[dict]`, gồm missing_image, wrong_hash, invalid_class, bbox_out_of_bounds và duplicate_box.
+| File | Phụ trách | Đầu ra |
+|---|---|---|
+| file_yolo.py | Đức | Năm lỗi file/YOLO |
+| metadata_panoptic.py | Huyền | Bốn lỗi metadata/panoptic |
+| cross_check.py | Hòa | Ứng viên đối chiếu cần người xem |
+| validate.py | Đức, tích hợp nhóm | Điểm chạy và JSON đầu ra |
 
-SHA-256 được tính lại trên bytes của file ảnh/nhãn/mask có khai hash trong manifest. Box kiểm theo tọa độ chuẩn hóa với dung sai1e-6 để xử lý làm tròn6chữ số. Box trùng cần cùng lớp, kích thước lệch tối đa0.01pixel và tâm lệch tối đa2.01pixel theo mỗi trục. Kích thước ảnh đọc từ mục images của panoptic.json trong delivery. Các ngưỡng này được kiểm bằng dữ liệu tự tạo và lô sạch, cần nhóm giải thích khi vấn đáp.
+Các module kiểm luật xuất validate(delivery: Path) trả danh sách các dict có type và target. Module cross-check xuất generate_candidates(delivery: Path) trả danh sách ứng viên. Validator chỉ đọc lô được truyền vào, dùng thư viện chuẩn và chạy offline.
 
-`validate.py` là điểm chạy chung, xuất lỗi duy nhất theo cặp type/target, sắp xếp ổn định và ghi JSON qua file tạm. Tất cả đầu ra đặt ngoài delivery.
-
-## Lệnh bàn giao cho Người 2 và Người 3
+## Chạy
 
 Từ thư mục gốc repo:
 
@@ -17,50 +20,24 @@ python -X utf8 validator/validate.py runs/r3007/delivery --out runs/r3007/rules.
 python -X utf8 validator/validate.py runs/clean/delivery --out runs/clean/rules.json --candidates runs/clean/candidates.json
 ```
 
-Đề ẩn được thay bằng ZIP đã sửa `de_an_18.zip` mà học viên cung cấp. Lệnh theo nhiệm vụ mới:
+rules.json có cấu trúc errors chứa các cặp type/target duy nhất. target là tên ảnh không có đuôi, riêng scene_leak dùng scene_id. candidates.json có danh sách candidates và status generated_for_human_review sau khi module cross-check chạy.
 
-```powershell
-python -X utf8 validator/validate.py delivery --out runs/de_an_work/rules.json --candidates submission/de_an/candidates.json
-```
+Đầu ra đặt ngoài delivery. Điểm chạy ghi JSON qua file tạm và sắp xếp lỗi ổn định. Nếu thiếu module, CLI báo PENDING để người chạy nhận biết việc tích hợp còn thiếu.
 
-`rules.json` chứa dạng sau, tên ảnh không có đuôi:
+## Phạm vi kiểm tra
 
-```json
-{"errors": [{"type": "missing_image", "target": "ten_anh"}]}
-```
+- File/YOLO gồm missing_image, wrong_hash, invalid_class, bbox_out_of_bounds, duplicate_box.
+- Metadata/panoptic gồm scene_leak, guideline_mismatch, invalid_category_id, thing_overlap.
+- Cross-check sinh ca cần xem cho class_swap/category_swap, bbox_drift, missing_box, instance_merge. Người xem quyết định nguồn nhãn nào sai.
 
-Scene leak khi tích hợp có target là scene_id theo đề. Người 3 gộp rules.json với các dòng confirmed sau khi nhóm xem ảnh, bằng scripts/merge_review.py. File errors.json cuối chỉ được chốt sau phần tích hợp và review.
+SHA-256 được tính lại từ bytes. Box vượt biên dùng dung sai chuẩn hóa 1e-6 để xử lý làm tròn. Box trùng cần cùng lớp, chênh kích thước tối đa 0.01 pixel và tâm lệch tối đa 2.01 pixel theo mỗi trục. Các ngưỡng đối chiếu nằm trong cross_check.py và được mô tả trong REPORT.md.
 
-## Giao diện tích hợp đề xuất
+## Review và bàn giao
 
-Hai tên module/hàm sau được Người 1 chuẩn bị để ghép code. Đây là đề xuất kỹ thuật, chưa có xác nhận của Người 2/3. Nếu hai bạn đã dùng tên khác thì sửa adapter trong validate.py để gọi code được bàn giao.
+Xem bằng tools/view_qc.py với đường dẫn candidates. Ghi người xem, verdict và quan sát vào review_log.csv. Chỉ sau khi nhóm chốt mới gộp bằng scripts/merge_review.py. Kết quả chuẩn của lô nằm tại [submission/r3007](../submission/r3007/).
 
-- `validator/metadata_panoptic.py` xuất `validate(delivery: Path) -> list[dict]`. Mỗi mục có type và target. Điểm chạy chung gọi hàm rồi gộp với lỗi file/YOLO.
-- `validator/cross_check.py` xuất `generate_candidates(delivery: Path) -> list[dict]`. Điểm chạy chung bọc danh sách trong khóa candidates. Người làm công cụ review thống nhất các trường type, target/image, vị trí box/segment và evidence với người sinh ứng viên.
-- Các module nhận đúng đường dẫn delivery và chỉ đọc dữ liệu bên trong. Dùng thư viện chuẩn Python, chạy offline.
-- Khi thiếu module, CLI in PENDING. File candidates có status=pending_cross_check_integration là chỗ chờ tích hợp, chưa phải hàng đợi review đã sinh. Danh sách rỗng ở trạng thái này chưa được dùng để kết luận không có lỗi gán nhãn.
+Người 4 quản lý v2/lineage. Người 5 cung cấp tools/trace_query.py và bằng chứng bảo mật. [Kiểm chứng](../submission/verification/README.md) chứa kết quả luật của các seed và log chạy lại.
 
-## Kiểm chứng phần Người 1
+## Kiểm thử
 
-```powershell
-python -m unittest discover -s tests -p test_file_yolo.py -v
-```
-
-Có8kiểm thử dữ liệu tự tạo, bao gồm sai hash, thiếu ảnh, lớp sai, box tràn nhẹ, tọa độ không hữu hạn, box trùng và cặp vật chồng nhau tự nhiên. Kết quả thực tế lưu trong submission/person1_status.json. Lô sạch có0lỗi thuộc5kiểm tra Người1. Phần F1 tổng, kiểm metadata/panoptic và review ảnh còn chờ các thành viên phụ trách.
-
-## Điều phối tiếp theo
-
-1. Người 2 thử lệnh r3007, bàn giao module kiểm tra của mình và chỉ rõ hàm cần gọi.
-2. Người 3 bàn giao phần sinh ứng viên hoặc tên hàm đang dùng, sau đó chia ảnh review cho cả nhóm.
-3. Đức ghép các module qua điểm chạy chung, chạy lại và chuyển đúng rules.json/candidates.json cho Người 3.
-4. Sau khi Người 3 chốt errors.json, chuyển kết quả cho Người 4 kiểm tra theo phân công mới.
-
-Các thành viên tự ghi người xem và bằng chứng ảnh khi confirmed/rejected. Phần hướng dẫn này chưa ghi nhận ai đã hoàn thành review.
-
-## File kết quả đã chia sẻ trên GitHub
-
-- [Kết quả Người1 trên r3007](../submission/person1/r3007_rules.json).
-- [Kết quả Người1 trên đề18 đã sửa](../submission/person1/de_an_rules.json).
-- [Kết quả Người1 trên lô sạch](../submission/person1/clean_rules.json).
-
-Các bản này sao chép đúng kết quả của năm kiểm tra Người1 để thành viên tải về và tích hợp. Người3 cần nhận thêm lỗi metadata/panoptic và kết luận review trước khi chốt errors.json của nhóm. Các thư mục runs và delivery được giữ trên máy làm việc theo rules của đề.
+Chạy các test tự tạo theo [START_HERE.md](../START_HERE.md). tests/test_pipeline.py là bộ kiểm gốc của đề, có phần dùng đáp án riêng nên không chạy phần đó trong luồng làm bài của nhóm.

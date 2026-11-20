@@ -1,8 +1,10 @@
 # Người 3 — Làm tiếp sau khi nhận phần Người 1
 
+Phạm vi cập nhật ngày 20/11/2026 là luyện tập 3007. Code đã được tích hợp vào main. Hướng dẫn dưới đây dùng để đối chiếu và tái lập công việc.
+
 ## 1. Bạn nhận gì và cần chờ phần nào?
 
-Đức đã bàn giao code năm kiểm tra file/YOLO và điểm chạy validator/validate.py. Kết quả riêng Người 1 trên r3007 có6 mục lỗi, đề 18 đã sửa có5 mục lỗi. Bản chia sẻ nằm tại submission/person1/.
+Đức đã bàn giao code năm kiểm tra file/YOLO và điểm chạy validator/validate.py. Kết quả riêng Người 1 trên r3007 có6 mục lỗi. Bản chia sẻ nằm tại submission/verification/rules/.
 
 Người 2 bổ sung bốn kiểm tra metadata/panoptic. Bạn phụ trách đối chiếu nhãn, sinh ứng viên, chia ảnh cho cả nhóm xem, tổng hợp kết luận và chốt errors.json. Người 4 nhận bộ kết quả của bạn để rà soát tiếp.
 
@@ -19,7 +21,7 @@ python --version
 
 Kiểm tra và lưu code của bạn trước khi pull nếu đang có thay đổi chưa commit. Nếu nhận ZIP qua Zalo, đối chiếu file trước khi ghép.
 
-Luyện tập dùng runs/r3007/delivery/. Lô đối chứng dùng runs/clean/delivery/. Đề ẩn dùng delivery/ ở gốc, giải nén từ ZIP de_an_18.zip đã sửa mà nhóm được cung cấp. Chạy các lệnh ở các mục sau trên đúng lô đang làm.
+Luyện tập dùng runs/r3007/delivery/. Lô đối chứng dùng runs/clean/delivery/. Chạy các lệnh ở các mục sau trên đúng lô đang làm.
 
 ## 3. Viết phần đối chiếu
 
@@ -82,7 +84,7 @@ Gửi cho từng người tên ảnh, những ca nghi vấn, vị trí file ản
 
 ## 6. Thu kết luận review
 
-File luyện tập là runs/r3007/review_log.csv. File đề ẩn là submission/de_an/review_log.csv. Giữ đúng header:
+File luyện tập là runs/r3007/review_log.csv. Giữ đúng header:
 
 ```csv
 image,type,verdict,note
@@ -91,7 +93,7 @@ image,type,verdict,note
 - image là tên ảnh không có đuôi, đúng với target.
 - type là một trong năm lỗi gán nhãn ở mục 3.
 - verdict là confirmed hoặc rejected.
-- note có tên người xem và điều quan sát cụ thể. Với confirmed đề ẩn, ghi chú tối thiểu20 ký tự và có nội dung riêng của ca đó.
+- note có tên người xem và điều quan sát cụ thể. Ghi chú tối thiểu20 ký tự và có nội dung riêng của ca đó.
 
 Confirmed là kết luận người xem đã xác nhận lỗi. Rejected cần lý do như khác biệt do che khuất hoặc crowd. Khi nhiều người gửi kết luận mâu thuẫn cho cùng ảnh/loại, mở ảnh và chốt một kết luận trước khi gộp.
 
@@ -108,23 +110,7 @@ python scripts/score_findings.py --run runs/r3007
 
 Báo cáo ghi F1 thật theo nhóm lỗi, số ứng viên lô sạch/luyện tập, ngưỡng đã dùng và lý do báo hết ứng viên có thể làm F1 giảm. Ghi nguồn file và mẫu số. Chuyển errors.json đã chốt cho Người 4.
 
-## 8. Làm đề ẩn
-
-Khi code đã ghép, Đức hoặc bạn chạy trên delivery/:
-
-```text
-python validator/validate.py delivery --out runs/de_an_work/rules.json --candidates submission/de_an/candidates.json
-```
-
-Kiểm candidates đã được sinh, chia ảnh cho cả năm người, thu review vào submission/de_an/review_log.csv. Sau khi chốt các kết luận:
-
-```text
-python scripts/merge_review.py --rules runs/de_an_work/rules.json --review submission/de_an/review_log.csv --out submission/de_an/errors.json
-```
-
-Gửi Người 4 ba file candidates.json, review_log.csv và errors.json. Báo Đức phần đã xong, phần còn cần rà, thời điểm có thể tập hợp bài. Nhóm còn cần trace.json do người phụ trách truy vết hoàn thành trước khi nộp đủ đề ẩn.
-
-## 9. Bạn bàn giao những gì?
+## 8. Bạn bàn giao những gì?
 
 - cross_check.py hoặc module thực tế kèm hàm cần gọi.
 - candidates.json của các lô đã chạy, phương pháp/ngưỡng và số ứng viên đo được.
@@ -134,7 +120,7 @@ Gửi Người 4 ba file candidates.json, review_log.csv và errors.json. Báo �
 
 Đề yêu cầu mỗi thành viên ít nhất hai commit có nội dung. Có thể chia thành commit logic đối chiếu và commit review/số liệu đã xác minh. Giữ file đề và scripts gốc theo rules, chép sản phẩm luyện tập sang submission theo SUBMISSION.md khi nộp. Tránh đưa dữ liệu runs, data_source, delivery, ZIP và secret vào commit.
 
-## 10. Hoàn thành khi nào?
+## 9. Hoàn thành khi nào?
 
 Module được CLI gọi thành công, ứng viên của lô sạch/luyện tập đã đo, cả nhóm đã xem các ảnh được chia, review_log được kiểm tra, errors.json đã gộp và chuyển Người 4. Bạn phải giải thích được vì sao một ca được confirmed/rejected và vì sao precision/F1 có thể giảm khi báo thừa.
 

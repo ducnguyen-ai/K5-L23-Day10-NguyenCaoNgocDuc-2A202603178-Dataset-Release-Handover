@@ -1,5 +1,7 @@
 # Người 2 — Làm tiếp sau khi nhận phần Người 1
 
+Phạm vi cập nhật ngày 20/11/2026 là luyện tập 3007. Code đã được tích hợp vào main. Hướng dẫn dưới đây dùng để đối chiếu và tái lập công việc.
+
 ## 1. Bạn nhận được gì?
 
 Người 1 là Đức, đã làm năm kiểm tra file/YOLO và điểm chạy `validator/validate.py`. Lệnh chạy, kiểu kết quả và chỗ ghép module đã có trong [validator/README.md](../../validator/README.md).
@@ -8,9 +10,8 @@ Kết quả hiện có của riêng Người 1:
 
 | Lô | File chia sẻ | Số mục lỗi |
 |---|---|---:|
-| Luyện tập3007 | submission/person1/r3007_rules.json | 6 |
-| Đề 18 đã sửa | submission/person1/de_an_rules.json | 5 |
-| Đối chứng50 ảnh | submission/person1/clean_rules.json | 0 |
+| Luyện tập3007 | submission/verification/rules/person1_r3007.json | 6 |
+| Đối chứng50 ảnh | submission/verification/rules/person1_clean.json | 0 |
 
 Bạn nhận phần kiểm metadata, panoptic và hỗ trợ công cụ xem ảnh. Cả nhóm sẽ dùng kết quả của bạn cùng phần Người 1 để tạo rules.json đầy đủ.
 
@@ -26,7 +27,7 @@ python -m unittest discover -s tests -p test_file_yolo.py -v
 
 Nếu máy đã có code chưa commit, kiểm tra `git status` và lưu phần của bạn trước khi pull. Nếu nhận ZIP qua Zalo, so các file trong gói với repo trước khi ghép vào code đang làm.
 
-Máy chưa có dữ liệu luyện tập thì tải bằng `python scripts/download_public.py`, tạo lần đầu bằng `python scripts/run_lab.py --seeds 3007`. Máy đã có r3007 đang làm tiếp trên lô đó. Máy làm đề ẩn giải nén ZIP `de_an_18.zip` đã sửa do nhóm chuyển vào gốc repo để có thư mục delivery/.
+Máy chưa có dữ liệu luyện tập thì tải bằng `python scripts/download_public.py`, tạo lần đầu bằng `python scripts/run_lab.py --seeds 3007`. Máy đã có r3007 đang làm tiếp trên lô đó.
 
 ## 3. Viết bốn kiểm tra của bạn
 
@@ -98,21 +99,11 @@ Thống nhất dữ liệu ứng viên với Người 3 trước khi nối công
 
 Trang Người 1 đã làm chỉ phục vụ xem box file/YOLO. Phần hỗ trợ xem mask và các ứng viên đối chiếu do bạn cùng Người 3 hoàn thiện.
 
-## 7. Chạy phần bạn trên đề ẩn
-
-Sau khi ghép đủ module, dùng đúng thư mục delivery/ ở gốc:
-
-```text
-python validator/validate.py delivery --out runs/de_an_work/rules.json --candidates submission/de_an/candidates.json
-```
-
-Báo Đức và Người 3 phần metadata/panoptic đã ghép, vị trí file và các cảnh báo còn tồn tại. Khi Người 3 chia ảnh, xem ảnh của mình và gửi kết luận cùng lý do, tên người xem. Người 3 tổng hợp review_log.csv.
-
-## 8. Bạn bàn giao những gì?
+## 7. Bạn bàn giao những gì?
 
 - Module metadata_panoptic.py, hoặc tên module/hàm thực tế để Đức ghép.
 - Kiểm thử hoặc cách tái hiện bốn loại lỗi bạn phụ trách.
-- Kết quả chạy r3007, seed thử thêm, lô sạch và đề ẩn khi đã được chạy.
+- Kết quả chạy r3007, seed thử thêm và lô sạch.
 - Hướng dẫn công cụ xem ảnh/mask dùng cùng Người 3.
 - Các dòng review do chính bạn xem.
 
@@ -120,7 +111,7 @@ Khi báo nhóm, ghi rõ commit, lệnh chạy, đường dẫn kết quả và p
 
 Các file code và sản phẩm nộp đặt theo cấu trúc repo. runs/, data_source/, delivery/, ZIP và secret được bỏ qua theo rules. Kết quả cần chia sẻ trên Git thì sao chép vào khu vực submission phù hợp, ghi rõ phạm vi và lô nguồn.
 
-## 9. Hoàn thành khi nào?
+## 8. Hoàn thành khi nào?
 
 Bốn kiểm tra đã được gọi từ CLI chung, lô sạch0 lỗi luật, đã thử ít nhất hai seed, đã giao code/kết quả và đã xem phần ảnh được chia. Nhóm phải giải thích được cách phát hiện scene leak, chọn guideline theo job, đổi RGB thành segment_id và so area với số pixel.
 

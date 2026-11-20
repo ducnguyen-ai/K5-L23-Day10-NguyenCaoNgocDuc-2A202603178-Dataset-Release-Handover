@@ -1,0 +1,35 @@
+{
+  "scope": "Person 1: five file/YOLO rule checks",
+  "implemented_types": [
+    "missing_image",
+    "wrong_hash",
+    "invalid_class",
+    "bbox_out_of_bounds",
+    "duplicate_box"
+  ],
+  "synthetic_tests_passed": 8,
+  "results": {
+    "practice_r3007": {
+      "source": "runs/r3007/rules.json",
+      "total_findings": 6,
+      "by_type": {
+        "bbox_out_of_bounds": 1,
+        "duplicate_box": 2,
+        "invalid_class": 1,
+        "wrong_hash": 2
+      },
+      "shared_copy": "submission/verification/rules/person1_r3007.json"
+    },
+    "clean50": {
+      "source": "runs/clean/rules.json",
+      "total_findings": 0,
+      "by_type": {},
+      "shared_copy": "submission/verification/rules/person1_clean.json"
+    }
+  },
+  "integration": {
+    "metadata_panoptic": "integrated",
+    "cross_check": "integrated",
+    "human_review": "18 observations available, reviewer attribution needs completion"
+  }
+}

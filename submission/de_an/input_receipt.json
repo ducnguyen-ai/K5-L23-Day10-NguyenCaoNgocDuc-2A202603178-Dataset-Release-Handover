@@ -1,9 +1,0 @@
-{
-  "archive": "de_an_18.zip",
-  "archive_sha256": "7a4dd4dbe9065b777b29966ac72f810d73c770bd19e289b1c9e54907d7d002d5",
-  "file_count": 757,
-  "image_records": 250,
-  "release_id": "lab250_278031cc6eb2",
-  "active_delivery": "delivery/",
-  "superseded_delivery": "runs/de_an_work/superseded_delivery_20261119/"
-}
