@@ -9,6 +9,8 @@
 
 **Rà soát của Người 5, ngày 20/11/2026:** đã tái tạo r3007 và lô sạch bằng script chính thức theo START_HERE.md, rồi chạy validator hiện tại. Lô r3007 có 11 lỗi luật và 18 ứng viên/17 ảnh; lô sạch có 0 lỗi luật và 0 ứng viên. Tập lỗi luật r3007 khớp hợp các kết quả Người 1/2 đã lưu. Sau khi nhận commit 3a3c47e của Người 3, đã kiểm chứng submission/person_3/review_log.csv có 18 dòng trên 17 ảnh, gồm 10 confirmed và 8 rejected. Candidates khớp kết quả chạy lại r3007; errors.json có 21 mục, đúng bằng 11 lỗi luật cộng 10 dòng confirmed. Các ghi chú đều đủ 20 ký tự và loại lỗi cuối phù hợp các khả năng của ứng viên, nhưng cả 18 dòng chưa ghi tên người xem. Người 3 cần xác nhận người đã trực tiếp xem và bổ sung tên thật vào note; không tự gán tên thành viên bằng AI. Đây là kiểm tra tính nhất quán file, chưa xác nhận lại nội dung ảnh hoặc F1.
 
+Phạm vi xác nhận review r3007 được đề xuất chia 4–4–3–3–3 ảnh theo vai Người 1–5, ghi tại TEAM.md và submission/person5/review_assignments.json. Bộ kết quả chung đã có đủ 18 dòng; trạng thái từng thành viên chờ xác nhận việc thực hiện, chưa suy từ phân công rằng mọi người đã trực tiếp xem ảnh. Nguyễn Chí Tài được đề xuất phụ trách 000000016010, 000000023272, 000000023781.
+
 ### Kiểm chứng phần Người 1
 
 Năm kiểm tra file/YOLO chạy trên r3007 tìm6mục lỗi, lô sạch50ảnh tìm0mục lỗi. Bản đề18 đã sửa từ ZIP do học viên cung cấp tìm5mục lỗi thuộc phạm vi Người1. Nguồn số liệu là runs/r3007/rules.json, runs/clean/rules.json và runs/de_an_work/rules.json, được tổng hợp trong person1_status.json. Có8kiểm thử tự tạo đạt. Các số này chưa phải F1 và chưa bao gồm phần metadata/panoptic hay kết luận review ảnh.

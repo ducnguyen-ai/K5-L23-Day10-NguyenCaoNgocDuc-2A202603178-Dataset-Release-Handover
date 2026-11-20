@@ -1,0 +1,229 @@
+{
+  "run": "r3007",
+  "date": "2026-11-20",
+  "purpose": "Chia đều phạm vi xác nhận review; đây không phải bằng chứng từng người đã xem ảnh.",
+  "source_candidates": "submission/person_3/candidates.json",
+  "source_review": "submission/person_3/review_log.csv",
+  "group_progress": {
+    "review_results_available": 18,
+    "candidate_records": 18,
+    "images": 17,
+    "confirmed": 10,
+    "rejected": 8
+  },
+  "assignment_counts": [
+    4,
+    4,
+    3,
+    3,
+    3
+  ],
+  "recording_rule": "Chỉ thêm tên người review và đánh dấu hoàn thành sau khi thành viên thực sự xem ảnh và xác nhận; giữ nguyên log nguồn.",
+  "assignments": [
+    {
+      "role": "Người 1",
+      "name": null,
+      "image_count": 4,
+      "candidate_count": 4,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000001818",
+          "candidate_types": [
+            "bbox_drift"
+          ],
+          "existing_review_types": [
+            "bbox_drift"
+          ]
+        },
+        {
+          "image": "000000006723",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000007108",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000007795",
+          "candidate_types": [
+            "missing_box"
+          ],
+          "existing_review_types": [
+            "missing_box"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "Người 2",
+      "name": null,
+      "image_count": 4,
+      "candidate_count": 4,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000006763",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000009483",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000013546",
+          "candidate_types": [
+            "missing_box"
+          ],
+          "existing_review_types": [
+            "missing_box"
+          ]
+        },
+        {
+          "image": "000000017182",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "Người 3",
+      "name": null,
+      "image_count": 3,
+      "candidate_count": 4,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000013291",
+          "candidate_types": [
+            "bbox_drift",
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "bbox_drift",
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000013659",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "category_swap"
+          ]
+        },
+        {
+          "image": "000000024243",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "Người 4",
+      "name": null,
+      "image_count": 3,
+      "candidate_count": 3,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000007511",
+          "candidate_types": [
+            "missing_box"
+          ],
+          "existing_review_types": [
+            "missing_box"
+          ]
+        },
+        {
+          "image": "000000018380",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000019742",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "category_swap"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "Người 5",
+      "name": "Nguyễn Chí Tài",
+      "image_count": 3,
+      "candidate_count": 3,
+      "assignment_status": "proposed_for_confirmation",
+      "individual_review_status": "awaiting_member_confirmation",
+      "images": [
+        {
+          "image": "000000016010",
+          "candidate_types": [
+            "instance_merge"
+          ],
+          "existing_review_types": [
+            "instance_merge"
+          ]
+        },
+        {
+          "image": "000000023272",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "class_swap"
+          ]
+        },
+        {
+          "image": "000000023781",
+          "candidate_types": [
+            "class_swap"
+          ],
+          "existing_review_types": [
+            "category_swap"
+          ]
+        }
+      ]
+    }
+  ]
+}

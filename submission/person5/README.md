@@ -2,6 +2,8 @@
 
 MHV: **2A202603223**. Email commit: **chitain26@gmail.com**. Ngày làm: **20/11/2026**.
 
+Phân công xác nhận review r3007: [review_assignments.json](review_assignments.json) và TEAM.md chia 17 ảnh theo tỷ lệ 4–4–3–3–3. Phần đề xuất của Nguyễn Chí Tài gồm 000000016010, 000000023272, 000000023781. Bộ kết quả chung có đủ 18 dòng; trạng thái từng người chờ xác nhận việc thực hiện, không tự gán tên vào các review có sẵn.
+
 ## Phạm vi và file
 
 - Truy vết đề ẩn đã chốt tại [../de_an/trace.json](../de_an/trace.json), kèm [bằng chứng](de_an_trace_evidence.json). Đúng release `lab250_278031cc6eb2` trong input_receipt.json.
