@@ -67,6 +67,10 @@ Thư mục /tmp có thể bị dọn; đây là môi trường kiểm công cụ
 
 ## Git và cách nhận phần việc
 
-Đã nối lại lịch sử repo gốc, làm trên nhánh person5-nguyen-chi-tai, giữ các commit cũ của nhóm. Các commit phần Người 5 dùng đúng tên/email do học viên cung cấp. Chưa push hoặc nộp LMS; Người 1 cần tích hợp bài của các thành viên trước khi xuất bản cuối.
+Đã nối lại lịch sử repo gốc, làm trên nhánh person5-nguyen-chi-tai, giữ các commit cũ của nhóm. Các commit phần Người 5 dùng đúng tên/email do học viên cung cấp. Nhánh này dùng để bàn giao riêng phần Người 5; chưa nộp LMS. Người 1 cần tích hợp bài của các thành viên trước khi xuất bản cuối.
+
+Phạm vi nhánh bàn giao gồm 29 file thay đổi so với main ở thời điểm kiểm tra: trace/security đã xuất đúng submission/, mục Truy vết và rà số liệu trong REPORT.md, TEAM.md, prompts.md, bằng chứng và hàng đợi hỗ trợ ở submission/person5/, công cụ trace cùng 8 test, và bản khôi phục viewer của nhóm. Giữ nguyên bản chỉnh TEAM.md do học viên thực hiện trước khi push. Không sửa scripts/; không đưa runs/, data_source/, delivery/, _private/, ZIP hoặc môi trường cài Pillow vào nhánh.
+
+Kiểm tra trước push: 8 test truy vết đạt; chạy lại cả hai trace cho kết quả đúng bằng file đã nộp; security xuất khớp bản run; JSON thay đổi đọc được; không tìm thấy mẫu credential/private key trong các blob mới đã quét. Bộ bài nhóm vẫn cần hoàn thiện tên người xem trong log, review/errors đề ẩn, v2 và lineage đầy đủ, mã nhóm/thông tin thành viên cùng kiểm bàn giao H1–H17 trước khi nộp chính thức.
 
 Từ thư mục cha repo, file Nguoi5_NguyenChiTai_2A202603223.patch chứa các commit phần Người 5 sau khi hoàn tất. Người tích hợp có thể xem patch trước rồi dùng git am trên nhánh làm việc sạch của cùng repo; không cần chép runs/, data_source/ hoặc delivery đề ẩn vào Git.

@@ -99,5 +99,21 @@
     "reviewer_names_missing_from_notes": 18,
     "image_contents_rechecked_by_AI": false,
     "F1_verified": false
+  },
+  "prepush_review": {
+    "date": "2026-11-20",
+    "branch": "person5-nguyen-chi-tai",
+    "main_checked": "3a3c47e",
+    "changed_files": 29,
+    "trace_tests_passed": 8,
+    "both_submitted_traces_reproduce": true,
+    "exported_security_matches_run": true,
+    "changed_json_parses": true,
+    "original_scripts_unchanged": true,
+    "prohibited_paths_in_changes": false,
+    "credential_pattern_scan_matches": 0,
+    "unique_introduced_blobs_scanned_before_preparation_commit": 40,
+    "preserves_student_TEAM_edit": true,
+    "submission_scope": "Person 5 handoff branch; full group submission remains incomplete"
   }
 }
