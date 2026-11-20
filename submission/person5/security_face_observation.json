@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-20",
+  "observer": "Nguyễn Chí Tài",
+  "student_id": "2A202603223",
+  "release_id": "lab250_68efac8c866e",
+  "image": "000000020992",
+  "scene_id": "scene_170",
+  "job_id": "J09",
+  "method": "Học viên trực tiếp xem ảnh gốc trong Preview và trả lời; AI chỉ ghi lại, không tự xác nhận nội dung ảnh.",
+  "observation_verbatim": "ảnh 20992 nhìn rõ mặt hơn. người đang quay mặt về phía bên trái nhìn rõ 2 mắt hơn so với ảnh còn lại và được chụp cận mặt hơn",
+  "image_sha256": "c705bfad8bb9333fd641c31a14514ed56f04f32082707a132ada26b365142378",
+  "security_scenario_decision": "Hold, báo người phụ trách",
+  "is_annotation_review_verdict": false
+}

@@ -1,0 +1,7 @@
+  [PASS] H1   v1 (lab250_68efac8c866e) giữ nguyên
+  [FAIL] H2   errors.json thiếu 7 lỗi luật mức file (missing_image, wrong_hash, guideline_mismatch, scene_leak, invalid_class, bbox_out_of_bounds) mà bộ kiểm tự thấy được: chạy lại validator
+  [FAIL] H3   review_log.csv phải có dòng verdict=confirmed cho mỗi lỗi gán nhãn trong errors.json (thiếu 0), và mỗi ghi chú ≥ 20 ký tự, không chép giống nhau (nói rõ thấy gì trong ảnh)
+  [FAIL] H4   runs/r3007/handover/lab250_68efac8c866e_v2 thiếu: ['images', 'labels', 'manifest.csv', 'label_summary.csv', 'truyvet.csv', 'README.txt', 'rework_queue.csv']
+
+Tổng: 1 PASS, 3 FAIL
+=> CHƯA ĐẠT: sửa các dòng FAIL.

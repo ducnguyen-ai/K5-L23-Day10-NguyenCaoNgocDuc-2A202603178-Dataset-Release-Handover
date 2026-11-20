@@ -175,22 +175,84 @@ class QCViewer:
         ttk.Label(toolbar, text="Image stem:").pack(side="left")
         self.entry = ttk.Entry(toolbar, width=23)
         self.entry.pack(side="left", padx=6)
-        self.entry.insert(0, "000000000139")
+        ttk.Button(toolbar, text="Open", command=self.open_manual).pack(side="left")
+        ttk.Button(toolbar, text="◀ Previous", command=lambda: self.move(-1)).pack(side="left", padx=(14, 3))
+        ttk.Button(toolbar, text="Next ▶", command=lambda: self.move(1)).pack(side="left")
+        ttk.Button(toolbar, text="Zoom −", command=lambda: self.change_zoom(-1)).pack(side="left", padx=(14, 3))
+        ttk.Button(toolbar, text="Zoom +", command=lambda: self.change_zoom(1)).pack(side="left")
+        ttk.Button(toolbar, text="Crop candidate", command=self.show_crop).pack(side="left", padx=(14, 3))
 
-        tk.Button(top, text="Open image", command=self.open_image).pack(side="left")
-        self.status = tk.Label(self.root, text="Enter an image ID, then click Open image.")
-        self.status.pack(fill="x", padx=10)
+        self.status = ttk.Label(self.root, text="Red=YOLO | Cyan=mask edges | Yellow=selected segment/region", padding=(10, 0))
+        self.status.pack(fill="x")
+        body = ttk.Panedwindow(self.root, orient="horizontal")
+        body.pack(fill="both", expand=True, padx=8, pady=8)
 
-        self.canvas = tk.Canvas(self.root, bg="#222222", width=1100, height=740)
-        self.canvas.pack(fill="both", expand=True, padx=10, pady=8)
-        self.photo = None
+        side = ttk.Frame(body, width=340)
+        body.add(side, weight=0)
+        ttk.Label(side, text=f"Candidates: {len(self.candidates)}", font=("Segoe UI", 11, "bold")).pack(anchor="w")
+        list_frame = ttk.Frame(side)
+        list_frame.pack(fill="both", expand=True, pady=(6, 10))
+        self.listbox = tk.Listbox(list_frame, width=42, exportselection=False)
+        self.listbox.pack(side="left", fill="both", expand=True)
+        list_scroll = ttk.Scrollbar(list_frame, orient="vertical", command=self.listbox.yview)
+        list_scroll.pack(side="right", fill="y")
+        self.listbox.configure(yscrollcommand=list_scroll.set)
+        for index, record in enumerate(self.candidates):
+            label = f"{index + 1:>3}. {image_stem(record)} | {record.get('type', '?')}"
+            self.listbox.insert("end", label)
+        self.listbox.bind("<<ListboxSelect>>", self.on_select)
+        ttk.Label(side, text="Evidence / reviewer hints:").pack(anchor="w")
+        self.details = tk.Text(side, height=15, width=42, wrap="word", state="disabled")
+        self.details.pack(fill="x")
+        ttk.Label(side, text="Viewer does not write review decisions.\nRecord confirmed/rejected manually with reviewer name.",
+                  foreground="#7a4b0a", justify="left").pack(anchor="w", pady=9)
 
-        self.root.bind("<Return>", lambda event: self.open_image())
-        self.open_image()
+        main = ttk.Frame(body)
+        body.add(main, weight=1)
+        self.canvas = tk.Canvas(main, bg="#202020", highlightthickness=0)
+        self.h_scroll = ttk.Scrollbar(main, orient="horizontal", command=self.canvas.xview)
+        self.v_scroll = ttk.Scrollbar(main, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(xscrollcommand=self.h_scroll.set, yscrollcommand=self.v_scroll.set)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.v_scroll.grid(row=0, column=1, sticky="ns")
+        self.h_scroll.grid(row=1, column=0, sticky="ew")
+        main.grid_rowconfigure(0, weight=1)
+        main.grid_columnconfigure(0, weight=1)
 
-    def open_image(self):
-        stem = Path(self.entry.get().strip()).stem
-        if not stem:
+        self.root.bind("<Return>", lambda _event: self.open_manual())
+        self.root.bind("<Right>", lambda _event: self.move(1))
+        self.root.bind("<Left>", lambda _event: self.move(-1))
+        self.root.bind("<plus>", lambda _event: self.change_zoom(1))
+        self.root.bind("<minus>", lambda _event: self.change_zoom(-1))
+
+        if self.candidates:
+            self.show_candidate(0)
+        else:
+            first = next((p.stem for p in sorted(self.images.iterdir())
+                          if p.suffix.lower() in (".jpg", ".jpeg", ".png")), None)
+            if first:
+                self.entry.insert(0, first)
+                self.open_manual()
+            else:
+                self.status.configure(text="No images found")
+
+    def _details(self, value: str):
+        self.details.configure(state="normal")
+        self.details.delete("1.0", "end")
+        self.details.insert("1.0", value)
+        self.details.configure(state="disabled")
+
+    def on_select(self, _event):
+        selection = self.listbox.curselection()
+        if selection and selection[0] != self.current_index:
+            self.show_candidate(selection[0])
+
+    def move(self, step: int):
+        if self.candidates:
+            self.show_candidate(max(0, min(len(self.candidates) - 1, self.current_index + step)))
+
+    def show_candidate(self, index: int):
+        if not 0 <= index < len(self.candidates):
             return
         self.current_index = index
         self.listbox.selection_clear(0, "end")
@@ -218,31 +280,77 @@ class QCViewer:
             messagebox.showerror("Image missing", f"Image not found inside delivery/images: {stem}")
             return
         try:
-            image = Image.open(image_path).convert("RGBA")
-            mask_path = self.masks / f"{stem}.png"
-            label_path = self.labels / f"{stem}.txt"
+            image = Image.open(path).convert("RGBA")
+            mask_path = self.masks / (stem + ".png")
+            selected_sid = candidate.get("segment_id") if candidate else None
+            selected_sid = int(selected_sid) if selected_sid is not None else None
+            image, segment_rect = mask_overlay(image, mask_path, selected_sid)
+            boxes = yolo_boxes(self.labels / (stem + ".txt"), image.width, image.height, self.classes)
+            selected_idx = candidate.get("box_index") if candidate else None
+            selected_box = next((b for b in boxes if b["index"] == selected_idx), None)
+            draw = ImageDraw.Draw(image)
+            for box in boxes:
+                is_selected = box["index"] == selected_idx
+                color = (255, 170, 0, 255) if is_selected else (255, 65, 65, 255)
+                draw.rectangle(box["rect"], outline=color, width=4 if is_selected else 2)
+                x0, y0 = box["rect"][:2]
+                draw.text((x0 + 2, max(0, y0 - 16)), f"#{box['index']} {box['name']}", fill=color)
+            self.roi = candidate_roi(candidate, segment_rect, selected_box, image.width, image.height)
+            if candidate and self.roi:
+                draw.rectangle(self.roi, outline=(255, 230, 0, 255), width=4)
+            self.render_base = image
+            self.zoom_index = 1
+            self.refresh_canvas()
+            self.status.configure(text=f"{stem} | {image.width}×{image.height} | "
+                                  f"{len(boxes)} boxes | mask={'yes' if mask_path.exists() else 'no'} | "
+                                  f"candidate={self.current_index + 1 if candidate else 'manual'}/{len(self.candidates)}")
+        except (OSError, ValueError, TypeError) as error:
+            messagebox.showerror("Cannot render image", str(error))
 
-            image = draw_mask_outlines(image, mask_path)
-            image = draw_yolo_boxes(image, label_path, self.classes)
+    def refresh_canvas(self):
+        if self.render_base is None:
+            return
+        zoom = self.ZOOM_LEVELS[self.zoom_index]
+        original = self.render_base
+        size = (max(1, round(original.width * zoom)), max(1, round(original.height * zoom)))
+        scaled = original.resize(size, Image.Resampling.NEAREST if zoom >= 2 else Image.Resampling.LANCZOS)
+        self.photo = ImageTk.PhotoImage(scaled)
+        self.canvas.delete("all")
+        self.canvas.create_image(0, 0, anchor="nw", image=self.photo)
+        self.canvas.configure(scrollregion=(0, 0, *size))
+        if self.roi:
+            self.canvas.update_idletasks()
+            center_x = (self.roi[0] + self.roi[2]) / 2 * zoom
+            center_y = (self.roi[1] + self.roi[3]) / 2 * zoom
+            visible_w = max(1, self.canvas.winfo_width())
+            visible_h = max(1, self.canvas.winfo_height())
+            self.canvas.xview_moveto(max(0, min(1, (center_x - visible_w / 2) / max(size[0], 1))))
+            self.canvas.yview_moveto(max(0, min(1, (center_y - visible_h / 2) / max(size[1], 1))))
 
-            original_size = image.size
-            image.thumbnail((1080, 700), Image.Resampling.LANCZOS)
+    def change_zoom(self, direction: int):
+        self.zoom_index = max(0, min(len(self.ZOOM_LEVELS) - 1, self.zoom_index + direction))
+        self.refresh_canvas()
 
-            self.photo = ImageTk.PhotoImage(image)
-            self.canvas.delete("all")
-            self.canvas.create_image(10, 10, anchor="nw", image=self.photo)
-            self.canvas.configure(
-                scrollregion=(0, 0, image.width + 20, image.height + 20)
-            )
+    def show_crop(self):
+        if self.render_base is None:
+            return
+        cut = crop_with_margin(self.render_base, self.roi)
+        factor = min(4.0, 900 / max(1, cut.width), 680 / max(1, cut.height))
+        cut = cut.resize((max(1, round(cut.width * factor)),
+                          max(1, round(cut.height * factor))), Image.Resampling.NEAREST)
+        window = tk.Toplevel(self.root)
+        window.title("Candidate crop — zoomed view")
+        photo = ImageTk.PhotoImage(cut)
+        label = tk.Label(window, image=photo, bg="#222222")
+        label.image = photo
+        label.pack(padx=6, pady=6)
+        # Keep strong Tk references for any open crop windows.
+        self.crop_windows.append(window)
+        window.bind("<Destroy>", lambda _event: self._forget_crop(window))
 
-            self.status.config(
-                text=f"{stem} | Original: {original_size[0]}x{original_size[1]} "
-                     f"| YOLO: {'OK' if label_path.exists() else 'no label'} "
-                     f"| Mask: {'OK' if mask_path.exists() else 'no mask'} "
-                     f"| Red = YOLO boxes | Cyan = segment boundaries"
-            )
-        except Exception as exc:
-            messagebox.showerror("Viewer error", str(exc))
+    def _forget_crop(self, window):
+        if window in self.crop_windows:
+            self.crop_windows.remove(window)
 
 
 def main():

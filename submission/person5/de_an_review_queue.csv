@@ -1,0 +1,13 @@
+image,type,verdict,note
+img_0015,class_swap,,
+img_0043,class_swap,,
+img_0048,instance_merge,,
+img_0053,class_swap,,
+img_0091,class_swap,,
+img_0096,missing_box,,
+img_0125,instance_merge,,
+img_0132,instance_merge,,
+img_0195,instance_merge,,
+img_0213,instance_merge,,
+img_0220,bbox_drift,,
+img_0240,instance_merge,,
